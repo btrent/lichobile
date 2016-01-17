@@ -114,9 +114,6 @@ function renderPlayer(players, color) {
     <div className={'player ' + color}>
       <span className="playerName">{playerName}</span>
       <br/>
-      {player.rating ?
-      <small className="playerRating">{player.rating}{player.conditional && '?'}</small> : null
-      }
     </div>
   );
 }

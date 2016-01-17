@@ -11,7 +11,8 @@ export default function view(ctrl) {
   const user = ctrl.user();
 
   function header() {
-    const title = (user.title ? `${user.title} ` : '') + user.username;
+    //const title = (user.title ? `${user.title} ` : '') + user.username;
+    const title = user.username;
     return headerWidget(null, backButton(title));
   }
 

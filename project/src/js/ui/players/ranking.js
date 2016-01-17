@@ -83,7 +83,7 @@ function renderRankingPlayer(user, key) {
     <li className="rankingPlayer" config={h.ontouchY(() => m.route('/@/' + user.id))}>
       {userStatus(user)}
       <span className="rating">
-        {user.perfs[key].rating}
+ 
       </span>
     </li>
   );

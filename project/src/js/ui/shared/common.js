@@ -138,7 +138,6 @@ export function userStatus(user) {
   return (
     <div className="user">
       <span className={'userStatus ' + status} data-icon="r" />
-      {user.title ? <span className="userTitle">{user.title}&nbsp;</span> : null}
       {user.username}
     </div>
   );

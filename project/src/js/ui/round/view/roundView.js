@@ -166,6 +166,7 @@ function compact(x) {
 }
 
 function renderRatingDiff(player) {
+  if (true) return null;
   if (typeof player.ratingDiff === 'undefined') return null;
   if (player.ratingDiff === 0) return m('span.rp.null', ' +0');
   if (player.ratingDiff > 0) return m('span.rp.up', ' +' + player.ratingDiff);
@@ -233,13 +234,6 @@ function renderAntagonistInfo(ctrl, player, material, position, isPortrait) {
         }
       </h2>
       <div className="ratingAndMaterial">
-        {user && isPortrait ?
-          <h3 className="rating">
-            {player.rating}
-            {player.provisional ? '?' : ''}
-            {renderRatingDiff(player)}
-          </h3> : null
-        }
         {checksNb !== undefined ?
           <div className="checkCount">{checksNb}</div> : null
         }
@@ -378,6 +372,10 @@ function renderGamePopup(ctrl, isPortrait) {
 }
 
 function renderGameActionsBar(ctrl, isPortrait) {
+  //auto claim victory
+  if (gameApi.forceResignable(ctrl.data)) {
+    socket.send('resign-force'); 
+  }
   const answerRequired = ctrl.data.opponent.proposingTakeback ||
     ctrl.data.opponent.offeringDraw ||
     gameApi.forceResignable(ctrl.data) ||
@@ -403,7 +401,7 @@ function renderGameActionsBar(ctrl, isPortrait) {
 
   const chatClass = [
     'action_bar_button',
-    ctrl.chat && ctrl.chat.unread ? 'glow' : ''
+    ''//ctrl.chat && ctrl.chat.unread ? 'glow' : ''
   ].join(' ');
 
   return (

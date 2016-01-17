@@ -84,7 +84,7 @@ function renderPlayer(user) {
     <li className="list_item playerSuggestion nav" config={h.ontouchY(() => m.route('/@/' + user.id))}>
       {userStatus(user)}
       <span className="rating" data-icon={utils.gameIcon(perf)}>
-        {user.perfs[perf].rating}
+
       </span>
     </li>
   );
