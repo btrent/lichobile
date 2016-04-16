@@ -1,0 +1,5 @@
+--ignore-dir=project/www/i18n
+--ignore-dir=app
+--ignore-dir=project/www/css/compiled
+
+

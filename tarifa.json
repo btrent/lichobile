@@ -83,7 +83,17 @@
       }
     }
   },
-  "cordova": {
+"signing": {                                                                                                   
+      "android": {
+        "store": {
+          "keystore_path": "bandit-release-key",
+          "keystore_alias": "bandit-release",
+          "keystore_password": "lichess",
+          "alias_password": "lichess"
+      }
+    }
+  },
+"cordova": {
     "preferences": {
       "Orientation": "default",
       "DisallowOverscroll": false,
