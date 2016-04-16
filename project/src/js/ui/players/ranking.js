@@ -3,7 +3,7 @@ import * as utils from '../../utils';
 import h from '../helper';
 import * as xhr from './playerXhr';
 import layout from '../layout';
-import { userStatus, header, empty } from '../shared/common';
+import { userStatus, header } from '../shared/common';
 import i18n from '../../i18n';
 import { perfTitle } from '../../lichess/perfs';
 import helper from '../helper';
@@ -30,9 +30,6 @@ export default {
 
     return {
       ranking,
-      onunload() {
-        socket.destroy();
-      },
       toggleRankingCat(key) {
         let cat = ranking()[key];
         cat.isOpenedOnMobile = !cat.isOpenedOnMobile;
@@ -43,17 +40,18 @@ export default {
   view(ctrl) {
     return layout.free(
       () => header(i18n('leaderboard')),
-      renderBody.bind(undefined, ctrl),
-      empty,
-      empty
+      renderBody.bind(undefined, ctrl)
     );
   }
 };
 
 function renderBody(ctrl) {
+  const categories = Object.keys(ctrl.ranking())
+    .filter(k => k !== 'online' && k !== 'crazyhouse')
+    .map(k => renderRankingCategory(ctrl, k));
   return (
     <div id="allRanking" className="native_scroller page">
-      {Object.keys(ctrl.ranking()).filter(k => k !== 'online').map(k => renderRankingCategory(ctrl, k))}
+      {categories}
     </div>
   );
 }

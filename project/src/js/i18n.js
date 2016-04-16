@@ -6,8 +6,9 @@ var messages = [];
 const untranslated = {
   apiUnsupported: 'Your version of lichess app is too old! Please upgrade for free to the latest version.',
   apiDeprecated: 'Upgrade for free to the latest lichess app! Support for this version will be dropped on %s.',
-  resourceNotFoundError: 'Resource not found',
-  lichessIsUnavailableError: 'lichess.org is temporarily down for maintenance',
+  resourceNotFoundError: 'Resource not found.',
+  lichessIsUnavailableError: 'lichess.org is temporarily down for maintenance.',
+  lichessIsUnreachable: 'lichess.org is unreachable.',
   mustSignIn: 'You must sign in to see this.',
   mustSignInToJoin: 'You must sign in to join it.',
   boardThemeBrown: 'Brown',
@@ -25,7 +26,24 @@ const untranslated = {
   playerisInvitingYou: '%s is inviting you',
   toATypeGame: 'To a %s game',
   unsupportedVariant: 'Variant %s is not supported in this version',
-  language: 'Language'
+  language: 'Language',
+  notesSynchronizationHasFailed: 'Notes synchronization with lichess has failed, please try later.',
+  challengeDeclined: 'Challenge declined',
+  persistentChallengeCreated: 'Correspondence challenge created. It will remain active for two weeks. You will get notified when your friend accepts it. You can cancel it from the "Correspondence" page.',
+  youAreChallenging: 'You are challenging %s',
+  submitMove: 'Submit move',
+  returnToHome: 'Return to home',
+  enableLocalComputerEvaluation: 'Enable local computer evaluation.',
+  localEvalCaution: 'Caution: it may be slow on some devices, and it consumes more battery.',
+  startNewAnalysis: 'Start new analysis',
+  showBestMove: 'Show computer best move',
+  followers: 'Followers',
+  userAcceptsYourChallenge: '%s accepts your challenge!',
+  incorrectThreefoldClaim: 'Incorrect threefold repetition claim.',
+  notifications: 'Notifications',
+  allowNotifications: 'Allow notifications',
+  enableVibrationOnNotification: 'Enable vibration on notification',
+  enableSoundOnNotification: 'Enable sound on notification'
 };
 
 const defaultCode = 'en';

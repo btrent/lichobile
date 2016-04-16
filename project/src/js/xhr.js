@@ -1,4 +1,5 @@
-import { request, apiVersion, lichessSri } from './http';
+import { request, apiVersion } from './http';
+import { lichessSri } from './utils';
 import settings from './settings';
 import i18n from './i18n';
 import session from './session';
@@ -41,10 +42,11 @@ export function seekGame() {
   }, true);
 }
 
-export function inviteFriend(userId, fen) {
+export function challenge(userId, fen) {
   const config = settings.gameSetup.challenge;
+  const url = userId ? `/setup/friend?user=${userId}` : '/setup/friend';
+
   const data = {
-    user: userId,
     variant: config.variant(),
     timeMode: config.timeMode(),
     days: config.days(),
@@ -56,29 +58,36 @@ export function inviteFriend(userId, fen) {
 
   if (fen) data.fen = fen;
 
-  return request('/setup/friend', {
+  return request(url, {
     method: 'POST',
     data
   }, true);
 }
 
-export function cancelChallenge(url) {
-  return request(url + '/cancel');
-}
-
-export function joinChallenge(id) {
-  return request('/' + id + '/join', { method: 'POST' }, true);
+export function getChallenges() {
+  return request('/challenge', {}, true);
 }
 
 export function getChallenge(id) {
-  return request('/' + id, { background: true });
+  return request(`/challenge/${id}`, {}, true);
 }
 
-export function declineChallenge(id) {
-  return request('/setup/decline?gameId=' + id, {
+export function cancelChallenge(id) {
+  return request(`/challenge/${id}/cancel`, {
     method: 'POST',
     deserialize: v => v
   }, true);
+}
+
+export function declineChallenge(id) {
+  return request(`/challenge/${id}/decline`, {
+    method: 'POST',
+    deserialize: v => v
+  }, true);
+}
+
+export function acceptChallenge(id) {
+  return request(`/challenge/${id}/accept`, { method: 'POST'}, true);
 }
 
 export function lobby(feedback) {
@@ -92,7 +101,7 @@ export function seeks(feedback) {
 export function game(id, color, background) {
   var url = '/' + id;
   if (color) url += ('/' + color);
-  return request(url, { background });
+  return request(url, { background }, true);
 }
 
 export function toggleGameBookmark(id) {
@@ -115,6 +124,10 @@ export function setServerLang(lang) {
       }
     });
   }
+}
+
+export function timeline() {
+  return request('/timeline', { background: true }, false);
 }
 
 export function status() {

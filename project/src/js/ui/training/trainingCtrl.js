@@ -1,4 +1,4 @@
-import last from 'lodash/array/last';
+import last from 'lodash/last';
 import chessground from 'chessground-mobile';
 import { handleXhrError } from '../../utils';
 import data from './data';
@@ -193,7 +193,13 @@ export default function ctrl() {
     var chessgroundConf = {
       fen: this.data.puzzle.fen,
       orientation: this.data.puzzle.color,
+      coordinates: settings.game.coords(),
       turnColor: this.data.puzzle.opponentColor,
+      highlight: {
+        lastMove: settings.game.highlights(),
+        check: settings.game.highlights(),
+        dragOver: false
+      },
       movable: {
         free: false,
         color: this.data.mode !== 'view' ? this.data.puzzle.color : null,
@@ -263,7 +269,6 @@ export default function ctrl() {
   window.plugins.insomnia.keepAwake();
 
   this.onunload = function() {
-    socket.destroy();
     window.plugins.insomnia.allowSleepAgain();
   };
 

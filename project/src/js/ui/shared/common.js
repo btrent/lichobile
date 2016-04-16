@@ -6,12 +6,13 @@ import newGameForm from '../newGameForm';
 import settings from '../../settings';
 import session from '../../session';
 import challengesApi from '../../lichess/challenges';
+import timeline from '../../lichess/timeline';
 import friendsApi from '../../lichess/friends';
 import i18n from '../../i18n';
 import friendsPopup from '../friendsPopup';
+import timelineModal from '../timelineModal';
 import m from 'mithril';
 import ViewOnlyBoard from './ViewOnlyBoard';
-
 
 export function menuButton() {
   return (
@@ -29,9 +30,22 @@ export function backButton(title) {
   );
 }
 
+export function timelineButton() {
+  const unreadCount = timeline.unreadCount();
+  const longAction = () => window.plugins.toast.show(i18n('timline'), 'short', 'top');
+  return (
+    <button className="main_header_button timeline_button fa fa-bell" key="timeline"
+      config={helper.ontouch(timelineModal.open, longAction)}
+    >
+      <span className="chip nb_timeline">{unreadCount}</span>
+    </button>
+  );
+}
+
 export function friendsButton() {
   const nbFriends = friendsApi.count();
   const longAction = () => window.plugins.toast.show(i18n('onlineFriends'), 'short', 'top');
+
   return (
     <button className="main_header_button friends_button" key="friends" data-icon="f"
       config={helper.ontouch(friendsPopup.open, longAction)}
@@ -45,8 +59,10 @@ export function friendsButton() {
 
 export function gamesButton() {
   let key, action;
-  const nbChallenges = challengesApi.count();
-  if (session.nowPlaying().length || nbChallenges) {
+  const nbChallenges = challengesApi.all().length;
+  const nbIncomingChallenges = challengesApi.incoming().length;
+  const withOfflineGames = !utils.hasNetwork() && utils.getOfflineGames().length;
+  if (session.nowPlaying().length || nbChallenges || withOfflineGames) {
     key = 'games-menu';
     action = gamesMenu.open;
   } else {
@@ -58,17 +74,17 @@ export function gamesButton() {
     'main_header_button',
     'game_menu_button',
     settings.general.theme.board(),
-    nbChallenges ? 'new_challenge' : '',
-    !utils.hasNetwork() ? 'invisible' : ''
+    nbIncomingChallenges ? 'new_challenge' : '',
+    !utils.hasNetwork() && utils.getOfflineGames().length === 0 ? 'invisible' : ''
     ].join(' ');
   const longAction = () => window.plugins.toast.show(i18n('nbGamesInPlay', session.nowPlaying().length), 'short', 'top');
 
   return (
     <button key={key} className={className} config={helper.ontouch(action, longAction)}>
-      {!nbChallenges && myTurns ?
+      {!nbIncomingChallenges && myTurns ?
         <span className="chip nb_playing">{myTurns}</span> : null
       }
-      {nbChallenges ?
+      {nbIncomingChallenges ?
         <span className="chip nb_challenges">{nbChallenges}</span> : null
       }
     </button>
@@ -76,22 +92,38 @@ export function gamesButton() {
 }
 
 export function headerBtns() {
-  if (utils.hasNetwork() && session.isConnected() && friendsApi.count())
+  if (utils.hasNetwork() && session.isConnected() && friendsApi.count()
+    && timeline.unreadCount()) {
     return (
-      <div className="buttons">
+      <div key="buttons" className="buttons">
+        {timelineButton()}
         {friendsButton()}
         {gamesButton()}
       </div>
     );
-  else
-    return gamesButton();
+  }
+  else if (utils.hasNetwork() && session.isConnected() && friendsApi.count()) {
+    return (
+      <div key="buttons" className="buttons">
+        {friendsButton()}
+        {gamesButton()}
+      </div>
+    );
+  }
+  else {
+    return (
+      <div key="buttons" className="buttons">
+        {gamesButton()}
+      </div>
+    );
+  }
 }
 
 export function header(title, leftButton) {
   return (
     <nav>
       {leftButton ? leftButton : menuButton()}
-      {title ? <h1>{title}</h1> : null}
+      {title ? <h1 key="title">{title}</h1> : null}
       {headerBtns()}
     </nav>
   );
@@ -107,7 +139,7 @@ export function connectingHeader(title) {
   return (
     <nav>
       {menuButton()}
-      <h1 className={'reconnecting' + (title ? 'withTitle' : '')}>
+      <h1 key="title" className={'reconnecting' + (title ? 'withTitle' : '')}>
         {title ? <span>{title}</span> : null}
         {loader}
       </h1>
@@ -116,21 +148,41 @@ export function connectingHeader(title) {
   );
 }
 
-export function viewOnlyBoardContent(fen, lastMove, orientation, variant) {
-  const x = helper.viewportDim().vw;
-  const boardStyle = helper.isLandscape() ? {} : { width: x + 'px', height: x + 'px' };
-  const boardKey = helper.isLandscape() ? 'landscape' : 'portrait';
-  return (
-    <div className="content_round onlyBoard">
-      <section key={boardKey} className="board_wrapper" style={boardStyle}>
-        {m.component(ViewOnlyBoard, {fen, lastMove, orientation, variant})}
-      </section>
-    </div>
+export function viewOnlyBoardContent(fen, lastMove, orientation, variant, wrapperClass, customPieceTheme) {
+  const isPortrait = helper.isPortrait();
+  const { vw, vh } = helper.viewportDim();
+  const boardStyle = isPortrait ? { width: vw + 'px', height: vw + 'px' } : {};
+  const boardKey = 'viewonlyboard' + (isPortrait ? 'portrait' : 'landscape');
+  const bounds = isPortrait ? { width: vw, height: vw } : { width: vh - 50, height: vh - 50 };
+  const className = 'board_wrapper' + (wrapperClass ? ' ' + wrapperClass : '');
+  const board = (
+    <section key={boardKey} className={className} style={boardStyle}>
+    {m.component(ViewOnlyBoard, {bounds, fen, lastMove, orientation, variant, customPieceTheme})}
+    </section>
   );
+  if (isPortrait) {
+    return [
+      <section key="viewonlyOpponent" className="playTable">&nbsp;</section>,
+      board,
+      <section key="viewonlyPlayer" className="playTable">&nbsp;</section>,
+      <section key="viewonlyActions" className="actions_bar">&nbsp;</section>
+    ];
+  } else {
+    return [
+      board,
+      <section key="viewonlyTable" className="table" />
+    ];
+  }
 }
 
 export function empty() {
   return [];
+}
+
+export function pad(num, size) {
+    var s = num + '';
+    while (s.length < size) s = '0' + s;
+    return s;
 }
 
 export function userStatus(user) {

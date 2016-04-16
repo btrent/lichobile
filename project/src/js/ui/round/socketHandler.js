@@ -3,17 +3,17 @@ import ground from './ground';
 import * as xhr from './roundXhr';
 import sound from '../../sound';
 import session from '../../session';
-import * as utils from '../../utils';
+import { handleXhrError, removeOfflineGameData } from '../../utils';
 import socket from '../../socket';
 import m from 'mithril';
 
 export default function(ctrl, onFeatured, onUserTVRedirect) {
 
-  const handlers = {
+ return {
     takebackOffers: function(o) {
       ctrl.data.player.proposingTakeback = o[ctrl.data.player.color];
       ctrl.data.opponent.proposingTakeback = o[ctrl.data.opponent.color];
-      m.redraw(false, true);
+      m.redraw();
     },
     move: function(o) {
       ctrl.apiMove(o);
@@ -23,13 +23,13 @@ export default function(ctrl, onFeatured, onUserTVRedirect) {
       var isWhite = ctrl.data.player.color === 'white';
       ctrl.data.player.checks = isWhite ? e.white : e.black;
       ctrl.data.opponent.checks = isWhite ? e.black : e.white;
-      m.redraw(false, true);
+      m.redraw();
     },
     reload: function() {
       xhr.reload(ctrl).then(ctrl.reload);
     },
     redirect: function(e) {
-      if (!ctrl.data.tv) m.route('/game/' + e.id);
+      socket.redirectToGame(e);
     },
     resync: function() {
       if (onUserTVRedirect) {
@@ -39,7 +39,7 @@ export default function(ctrl, onFeatured, onUserTVRedirect) {
           socket.setVersion(data.player.version);
           ctrl.reload(data);
         }, function(err) {
-          utils.handleXhrError(err);
+          handleXhrError(err);
         });
       }
     },
@@ -52,10 +52,13 @@ export default function(ctrl, onFeatured, onUserTVRedirect) {
       xhr.reload(ctrl).then(ctrl.reload);
       if (!ctrl.data.player.spectator) sound.dong();
       window.plugins.insomnia.allowSleepAgain();
+      if (ctrl.data.game.speed === 'correspondence') {
+        removeOfflineGameData(ctrl.data.url.round.substr(1));
+      }
       setTimeout(function() {
         session.refresh();
         ctrl.showActions();
-        m.redraw(false, true);
+        m.redraw();
       }, 500);
     },
     gone: function(isGone) {
@@ -76,13 +79,5 @@ export default function(ctrl, onFeatured, onUserTVRedirect) {
       });
       if (!ctrl.chat || !ctrl.chat.showing) m.redraw(false, true);
     }
-  };
-
-  return function(type, data) {
-    if (handlers[type]) {
-      handlers[type](data);
-      return true;
-    }
-    return false;
   };
 }

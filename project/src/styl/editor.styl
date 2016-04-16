@@ -27,7 +27,7 @@ pitHeightBigScreen = (100vh - 50px) / 8 + 5vh
       width 100%
 
 .sparePieces
-  height calc((100% - 100vw - 45px) / 2)
+  height calc((100% - 100vw - 40px) / 2)
   display flex
   justify-content center
   align-items center
@@ -46,7 +46,7 @@ pitHeightBigScreen = (100vh - 50px) / 8 + 5vh
   display inline-block
   width calc(100vw / 8 - 1vh)
   height calc(100vw / 8 - 1vh)
-  > .cg-piece
+  > piece
     z-index 1
   @media only screen and (orientation: landscape)
     width "calc(%s - 1vh)" % pitHeight

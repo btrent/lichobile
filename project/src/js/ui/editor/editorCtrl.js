@@ -3,7 +3,7 @@ import { computeFen, readFen } from './editor';
 import menu from './menu';
 import m from 'mithril';
 import { loadJsonFile } from '../../utils';
-import continuePopup from './continuePopup';
+import continuePopup from '../shared/continuePopup';
 import i18n from '../../i18n';
 import socket from '../../socket';
 import helper from '../helper';
@@ -14,7 +14,7 @@ export default function controller() {
 
   socket.createDefault();
 
-  helper.analyticsTrackView('Editor');
+  helper.analyticsTrackView('Board Editor');
 
   const initFen = m.route.param('fen') || startingFen;
 
@@ -72,7 +72,8 @@ export default function controller() {
     draggable: {
       showGhost: false,
       autoDistance: false,
-      squareTarget: true
+      squareTarget: true,
+      preventDefault: false
     },
     events: {
       change: () => {

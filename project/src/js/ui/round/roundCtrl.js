@@ -1,4 +1,4 @@
-import { throttle } from 'lodash/function';
+import throttle from 'lodash/throttle';
 import data from './data';
 import * as utils from '../../utils';
 import sound from '../../sound';
@@ -6,23 +6,23 @@ import gameApi from '../../lichess/game';
 import ground from './ground';
 import promotion from './promotion';
 import chat from './chat';
+import notes from './notes';
 import clockCtrl from './clock/clockCtrl';
 import i18n from '../../i18n';
 import gameStatus from '../../lichess/status';
-import correspondenceClockCtrl from './correspondenceClock/correspondenceCtrl';
+import correspondenceClockCtrl from './correspondenceClock/corresClockCtrl';
 import session from '../../session';
 import socket from '../../socket';
 import signals from '../../signals';
 import socketHandler from './socketHandler';
 import atomic from './atomic';
 import backbutton from '../../backbutton';
-import helper from '../helper';
 import * as xhr from './roundXhr';
+import { toggleGameBookmark } from '../../xhr';
+import { hasNetwork, saveOfflineGameData } from '../../utils';
 import m from 'mithril';
 
 export default function controller(cfg, onFeatured, onTVChannelChange, userTv, onUserTVRedirect) {
-
-  helper.analyticsTrackView('Round');
 
   this.data = data(cfg);
 
@@ -53,13 +53,15 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
   };
 
   const connectSocket = function() {
-    socket.createGame(
-      this.data.url.socket,
-      this.data.player.version,
-      socketHandler(this, onFeatured, onUserTVRedirect),
-      this.data.url.round,
-      userTv
-    );
+    if (utils.hasNetwork()) {
+      socket.createGame(
+        this.data.url.socket,
+        this.data.player.version,
+        socketHandler(this, onFeatured, onUserTVRedirect),
+        this.data.url.round,
+        userTv
+      );
+    }
   }.bind(this);
 
   connectSocket();
@@ -153,7 +155,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     else if (this.data.userTV)
       this.title = this.data.userTV;
     else if (gameStatus.started(this.data))
-      this.title = i18n('gamesBeingPlayedRightNow');
+      this.title = gameApi.title(this.data);
     else if (gameStatus.finished(this.data))
       this.title = i18n('gameOver');
     else if (gameStatus.aborted(this.data))
@@ -164,21 +166,29 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
   this.setTitle();
 
   this.sendMove = function(orig, dest, prom) {
-    var move = {
-      from: orig,
-      to: dest
-    };
-    if (prom) move.promotion = prom;
-    if (this.clock && socket.getAverageLag() !== undefined)
-      move.lag = Math.round(socket.getAverageLag());
+    socket.getAverageLag(function(lag) {
+      const move = {
+        from: orig,
+        to: dest
+      };
+      if (prom) move.promotion = prom;
+      if (this.clock && lag !== undefined) {
+        move.lag = Math.round(lag);
+      }
 
-    if (this.data.pref.submitMove) {
-      setTimeout(function() {
-        backbutton.stack.push(this.cancelMove);
-        this.vm.moveToSubmit = move;
-        m.redraw(false, true);
-      }.bind(this), this.data.pref.animationDuration || 0);
-    } else socket.send('move', move, { ackable: true });
+      if (this.data.pref.submitMove) {
+        setTimeout(function() {
+          backbutton.stack.push(this.cancelMove);
+          this.vm.moveToSubmit = move;
+          m.redraw();
+        }.bind(this), this.data.pref.animationDuration || 0);
+      } else {
+        socket.send('move', move, { ackable: true });
+        if (this.data.game.speed === 'correspondence' && !hasNetwork()) {
+          window.plugins.toast.show('You need to be connected to Internet to send your move.', 'short', 'center');
+        }
+      }
+    }.bind(this));
   };
 
   this.cancelMove = function(fromBB) {
@@ -189,11 +199,15 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
 
   this.submitMove = function(v) {
     if (v) {
-      if (this.vm.moveToSubmit)
+      if (this.vm.moveToSubmit) {
         socket.send('move', this.vm.moveToSubmit, {
           ackable: true
         });
-        this.vm.moveToSubmit = null;
+        if (this.data.game.speed === 'correspondence' && !hasNetwork()) {
+          window.plugins.toast.show('You need to be connected to Internet to send your move.', 'short', 'center');
+        }
+      }
+      this.vm.moveToSubmit = null;
     } else {
       this.cancelMove();
     }
@@ -206,7 +220,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
   var onMove = function(orig, dest, capturedPiece) {
     if (capturedPiece) {
       if (this.data.game.variant.key === 'atomic') {
-        atomic.capture(this, dest);
+        atomic.capture(this.chessground, dest);
         sound.explosion();
       }
       else sound.capture();
@@ -232,7 +246,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
         const p = o.enpassant;
         enpassantPieces[p.key] = null;
         if (d.game.variant.key === 'atomic') {
-          atomic.enpassant(this, p.key, p.color);
+          atomic.enpassant(this.chessground, p.key, p.color);
         } else {
           sound.capture();
         }
@@ -278,8 +292,6 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
         const premoveDelay = d.game.variant.key === 'atomic' ? 100 : 10;
         setTimeout(this.chessground.playPremove, premoveDelay);
       }
-
-      if (this.data.game.speed === 'correspondence') session.refresh();
     }
 
     if (o.clock) {
@@ -297,6 +309,12 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
       check: o.check
     });
     gameApi.setOnGame(d, playedColor, true);
+
+    if (this.data.game.speed === 'correspondence') {
+      session.refresh();
+      saveOfflineGameData(m.route.param('id'), this.data);
+    }
+
   }.bind(this);
 
   this.chessground = ground.make(this.data, cfg.game.fen, userMove, onMove);
@@ -334,10 +352,12 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
 
   var clockIntervId;
   if (this.clock) clockIntervId = setInterval(this.clockTick, 100);
-  else if (this.correspondenceClock) clockIntervId = setInterval(correspondenceClockTick, 1000);
+  else if (this.correspondenceClock) clockIntervId = setInterval(correspondenceClockTick, 6000);
 
   this.chat = (this.data.opponent.ai || this.data.player.spectator) ?
     null : new chat.controller(this);
+
+  this.notes = this.data.game.speed === 'correspondence' ? new notes.controller(this) : null;
 
   this.reload = function(rCfg) {
     if (this.stepsHash(rCfg.steps) !== this.stepsHash(this.data.steps))
@@ -350,30 +370,35 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     if (this.clock) this.clock.update(this.data.clock.white, this.data.clock.black);
     this.setTitle();
     if (!this.replaying()) ground.reload(this.chessground, this.data, rCfg.game.fen, this.vm.flip);
-    m.redraw(false, true);
+    m.redraw();
   }.bind(this);
 
-  window.plugins.insomnia.keepAwake();
-
-  var onResume = function() {
+  var reloadGameData = function() {
     xhr.reload(this).then(this.reload);
   }.bind(this);
 
-  document.addEventListener('resume', onResume);
+  this.toggleBookmark = function() {
+    return toggleGameBookmark(this.data.game.id).then(reloadGameData);
+  }.bind(this);
+
+  var onResize = function() {
+    this.vm.replayHash = '';
+  }.bind(this);
+
+  document.addEventListener('resume', reloadGameData);
+  window.addEventListener('resize', onResize);
+  window.plugins.insomnia.keepAwake();
 
   this.onunload = function() {
     socket.destroy();
     clearInterval(clockIntervId);
+    document.removeEventListener('resume', reloadGameData);
+    window.removeEventListener('resize', onResize);
+    window.plugins.insomnia.allowSleepAgain();
+    signals.seekCanceled.remove(connectSocket);
     if (this.chat) this.chat.onunload();
     if (this.chessground) {
       this.chessground.onunload();
-      // must do this to prevent old chessground to modify the new board
-      // (I still don't know why is it occuring)
-      this.chessground = null;
     }
-    document.removeEventListener('resume', onResume);
-    window.plugins.insomnia.allowSleepAgain();
-    signals.seekCanceled.remove(connectSocket);
   };
 }
-

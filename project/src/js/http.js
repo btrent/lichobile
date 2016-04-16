@@ -1,11 +1,8 @@
-import merge from 'lodash/object/merge';
-import Spinner from 'spin.js';
+import merge from 'lodash/merge';
+import spinner from './spinner';
 import m from 'mithril';
 
-const spinner = new Spinner({ color: '#C4A86F' });
-
 export const apiVersion = 1;
-export const lichessSri = Math.random().toString(36).substring(2);
 
 const baseUrl = window.lichess.apiEndPoint;
 
@@ -22,17 +19,18 @@ function onError(data) {
 function xhrConfig(xhr) {
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
   xhr.setRequestHeader('Accept', 'application/vnd.lichess.v' + apiVersion + '+json');
+  xhr.withCredentials = true;
   xhr.timeout = 8000;
 }
 
 // convenient wrapper around m.request
-export function request(url, opts, feedback) {
+export function request(url, opts, feedback, xhrConf) {
 
   var cfg = {
     url: 'http://' + baseUrl + url,
     method: 'GET',
-    data: { '_': Date.now() },
-    config: xhrConfig,
+    data: { },
+    config: xhrConf || xhrConfig,
     deserialize: function(text) {
       try {
         return JSON.parse(text);
@@ -45,6 +43,10 @@ export function request(url, opts, feedback) {
     }
   };
   merge(cfg, opts);
+
+  if (cfg.method === 'GET') {
+    cfg.data._ = Date.now();
+  }
 
   var promise = m.request(cfg);
 

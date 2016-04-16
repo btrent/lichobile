@@ -5,22 +5,24 @@ import challengesApi from '../../../lichess/challenges';
 import friendsApi from '../../../lichess/friends';
 import variantApi from '../../../lichess/variant';
 import chessground from 'chessground-mobile';
+import ground from '../ground';
 import settings from '../../../settings';
 import * as utils from '../../../utils';
 import i18n from '../../../i18n';
 import layout from '../../layout';
-import { menuButton, loader, headerBtns } from '../../shared/common';
+import { backButton, menuButton, loader, headerBtns } from '../../shared/common';
 import popupWidget from '../../shared/popup';
 import formWidgets from '../../shared/form';
 import { view as renderClock } from '../clock/clockView';
-import { view as renderPromotion } from '../promotion';
+import promotion from '../promotion';
 import helper from '../../helper';
 import button from './button';
 import gameApi from '../../../lichess/game';
 import { perfTypes } from '../../../lichess/perfs';
 import gameStatusApi from '../../../lichess/status';
-import { view as renderChat } from '../chat';
-import { view as renderCorrespondenceClock } from '../correspondenceClock/correspondenceView';
+import chat from '../chat';
+import notes from '../notes';
+import { view as renderCorrespondenceClock } from '../correspondenceClock/corresClockView';
 import { renderTable as renderReplayTable } from './replay';
 
 export default function view(ctrl) {
@@ -36,8 +38,9 @@ export default function view(ctrl) {
 
 function overlay(ctrl, isPortrait) {
   return [
-    ctrl.chat ? renderChat(ctrl.chat) : null,
-    renderPromotion(ctrl),
+    ctrl.chat ? chat.view(ctrl.chat) : null,
+    ctrl.notes ? notes.view(ctrl.notes) : null,
+    promotion.view(ctrl),
     renderGamePopup(ctrl, isPortrait),
     renderSubmitMovePopup(ctrl)
   ];
@@ -68,14 +71,14 @@ export function onPieceThemeChange(t) {
   pieceTheme = t;
 }
 
-export function renderBoard(variant, chessgroundCtrl, isPortrait, moreWrapperClasses) {
+export function renderBoard(data, chessgroundCtrl, bounds, isPortrait, moreWrapperClasses, customPieceTheme) {
   boardTheme = boardTheme || settings.general.theme.board();
   pieceTheme = pieceTheme || settings.general.theme.piece();
   const boardClass = [
     'display_board',
     boardTheme,
-    pieceTheme,
-    variant
+    customPieceTheme || pieceTheme,
+    data.game.variant.key
   ].join(' ');
   let wrapperClass = 'game_board_wrapper';
   let key = 'board' + (isPortrait ? 'portrait' : 'landscape');
@@ -87,6 +90,11 @@ export function renderBoard(variant, chessgroundCtrl, isPortrait, moreWrapperCla
 
   function boardConfig(el, isUpdate) {
     if (!isUpdate) {
+      if (!bounds) {
+        chessgroundCtrl.setBounds(el.getBoundingClientRect());
+      } else {
+        chessgroundCtrl.setBounds(bounds);
+      }
       chessground.render(el, chessgroundCtrl);
     }
   }
@@ -94,14 +102,62 @@ export function renderBoard(variant, chessgroundCtrl, isPortrait, moreWrapperCla
   return (
     <section className={wrapperClass} key={key}>
       <div className={boardClass} config={boardConfig} />
+      {renderVariantReminder(data)}
     </section>
   );
 }
 
+function renderVariantReminder(data) {
+  if (!data.game.status || !gameApi.isPlayerPlaying(data))  {
+    return null;
+  }
+
+  if (data.game.variant.key === 'standard') {
+    return null;
+  }
+
+  const icon = utils.gameIcon(data.game.variant.key);
+  if (!icon) return null;
+
+  function config(el, isUpdate) {
+    if (!isUpdate) setTimeout(function() {
+      el.classList.add('gone');
+      setTimeout(function() {
+        el.parentNode.removeChild(el);
+      }, 600);
+    }, 800);
+  }
+
+  return (
+    <div className="variant_reminder" data-icon={icon} config={config}>
+    </div>
+  );
+}
+
+function renderTitle(ctrl) {
+  if (socket.isConnected()) {
+    return (
+      <h1 className="playing">
+        {ctrl.data.userTV ? <span className="withIcon" data-icon="1" /> : null}
+        {ctrl.title}
+      </h1>
+    );
+  } else if (utils.hasNetwork()) {
+    return (
+      <h1 className="reconnecting withTitle">
+        {i18n('reconnecting')}
+        {loader}
+      </h1>
+    );
+  } else {
+    return <h1>Offline</h1>;
+  }
+}
+
 function renderHeader(ctrl) {
   const hash = '' + utils.hasNetwork() + session.isConnected() + socket.isConnected() +
-    friendsApi.count() + challengesApi.count() + session.nowPlaying().length +
-    session.myTurnGames().length;
+    friendsApi.count() + challengesApi.incoming().length + session.nowPlaying().length +
+    session.myTurnGames().length + ctrl.data.tv + ctrl.data.player.spectator;
 
   if (ctrl.vm.headerHash === hash) return {
     subtree: 'retain'
@@ -110,17 +166,8 @@ function renderHeader(ctrl) {
 
   return (
     <nav className={socket.isConnected() ? '' : 'reconnecting'}>
-      {menuButton()}
-      {socket.isConnected() ?
-      <h1 className="playing">
-        {ctrl.data.userTV ? <span className="withIcon" data-icon="1" /> : null}
-        {ctrl.title}
-      </h1> : utils.hasNetwork() ?
-      <h1 className="reconnecting withTitle">
-        {i18n('reconnecting')}
-        {loader}
-      </h1> : <h1>Offline</h1>
-      }
+      { !ctrl.data.tv && ctrl.data.player.spectator ? backButton(gameApi.title(ctrl.data)) : menuButton()}
+      { ctrl.data.tv || !ctrl.data.player.spectator ? renderTitle(ctrl) : null}
       {headerBtns()}
     </nav>
   );
@@ -130,20 +177,21 @@ function renderContent(ctrl, isPortrait) {
   const material = chessground.board.getMaterialDiff(ctrl.chessground.data);
   const player = renderPlayTable(ctrl, ctrl.data.player, material[ctrl.data.player.color], 'player', isPortrait);
   const opponent = renderPlayTable(ctrl, ctrl.data.opponent, material[ctrl.data.opponent.color], 'opponent', isPortrait);
+  const bounds = ground.getBounds(isPortrait);
 
   if (isPortrait)
     return [
       opponent,
-      renderBoard(ctrl.data.game.variant.key, ctrl.chessground, isPortrait),
+      renderBoard(ctrl.data, ctrl.chessground, bounds, isPortrait),
       player,
       renderGameActionsBar(ctrl, isPortrait)
     ];
   else
     return [
-      renderBoard(ctrl.data.game.variant.key, ctrl.chessground, isPortrait),
+      renderBoard(ctrl.data, ctrl.chessground, bounds, isPortrait),
       <section key="table" className="table">
         <header key="table-header" className="tableHeader">
-          {gameInfos(ctrl.data)}
+          {gameInfos(ctrl)}
         </header>
         <section key="players-table" className="playersTable">
           {opponent}
@@ -171,6 +219,8 @@ function renderRatingDiff(player) {
   if (player.ratingDiff === 0) return m('span.rp.null', ' +0');
   if (player.ratingDiff > 0) return m('span.rp.up', ' +' + player.ratingDiff);
   if (player.ratingDiff < 0) return m('span.rp.down', ' ' + player.ratingDiff);
+
+  return null;
 }
 
 function getChecksCount(ctrl, color) {
@@ -190,12 +240,14 @@ function renderSubmitMovePopup(ctrl) {
   );
 }
 
-function userInfos(user, player, playerName) {
+function userInfos(user, player, playerName, position) {
   let title;
   if (user) {
     let onlineStatus = user.online ? 'connected to lichess' : 'offline';
     let onGameStatus = player.onGame ? 'currently on this game' : 'currently not on this game';
-    title = `${playerName}: ${onlineStatus}; ${onGameStatus}`;
+    let engine = position === 'opponent' && user.engine ? i18n('thisPlayerUsesChessComputerAssistance') + '; ' : '';
+    let booster = position === 'opponent' && user.booster ? i18n('thisPlayerArtificiallyIncreasesTheirRating') + '; ' : '';
+    title = `${playerName}: ${engine}${booster}${onlineStatus}; ${onGameStatus}`;
   } else
     title = playerName;
   window.plugins.toast.show(title, 'short', 'center');
@@ -206,14 +258,13 @@ function renderAntagonistInfo(ctrl, player, material, position, isPortrait) {
   const user = player.user;
   const playerName = utils.playerName(player, !isPortrait);
   const vConf = user ?
-    helper.ontouch(utils.f(m.route, '/@/' + user.id), () => userInfos(user, player, playerName)) :
-    utils.noop;
+    helper.ontouch(utils.f(m.route, '/@/' + user.id), () => userInfos(user, player, playerName, position)) :
+    helper.ontouch(utils.noop, () => window.plugins.toast.show(playerName, 'short', 'center'));
 
-  const username = user ? user.username : 'anon';
   const onlineStatus = user && user.online ? 'online' : 'offline';
   const checksNb = getChecksCount(ctrl, player.color);
 
-  const hash = ctrl.data.game.id + username + onlineStatus + player.onGame + player.rating + player.provisional + player.ratingDiff + checksNb + Object.keys(material).map(k => k + material[k]) + isPortrait;
+  const hash = ctrl.data.game.id + playerName + onlineStatus + player.onGame + player.rating + player.provisional + player.ratingDiff + checksNb + Object.keys(material).map(k => k + material[k]).join('') + isPortrait;
 
   if (ctrl.vm[vmKey] === hash) return {
     subtree: 'retain'
@@ -283,8 +334,8 @@ function renderGameRunningActions(ctrl) {
     return <div className="game_controls">{controls}</div>;
   }
 
-  var d = ctrl.data;
-  var answerButtons = compact([
+  const d = ctrl.data;
+  const answerButtons = compact([
     button.cancelDrawOffer(ctrl),
     button.answerOpponentDrawOffer(ctrl),
     button.cancelTakebackProposition(ctrl),
@@ -294,34 +345,38 @@ function renderGameRunningActions(ctrl) {
     ) : undefined
   ]);
 
-  return [
-    m('div.game_controls', [
-      button.shareLink(ctrl),
-      button.moretime(ctrl),
-      button.standard(ctrl, gameApi.abortable, 'L', 'abortGame', 'abort'),
-      button.forceResign(ctrl) || [
-        button.standard(ctrl, gameApi.takebackable, 'i', 'proposeATakeback', 'takeback-yes'),
-        button.standard(ctrl, gameApi.drawable, '2', 'offerDraw', 'draw-yes'),
-        button.standard(ctrl, gameApi.resignable, 'b', 'resign', 'resign'),
-        button.threefoldClaimDraw(ctrl)
-      ]
-    ]),
-    answerButtons ? m('div.answers', answerButtons) : null
+  const gameControls = button.forceResign(ctrl) || [
+    button.standard(ctrl, gameApi.takebackable, 'i', 'proposeATakeback', 'takeback-yes'),
+    button.standard(ctrl, gameApi.drawable, '2', 'offerDraw', 'draw-yes'),
+    button.standard(ctrl, gameApi.resignable, 'b', 'resign', 'resign'),
+    button.threefoldClaimDraw(ctrl)
   ];
+
+  return (
+    <div className="game_controls">
+      {button.analysisBoard(ctrl)}
+      {button.shareLink(ctrl)}
+      {button.moretime(ctrl)}
+      {button.standard(ctrl, gameApi.abortable, 'L', 'abortGame', 'abort')}
+      {gameControls}
+      {answerButtons ? <div className="answers">{answerButtons}</div> : null}
+    </div>
+  );
 }
 
 function renderGameEndedActions(ctrl) {
-  var result = gameApi.result(ctrl.data);
-  var winner = gameApi.getPlayer(ctrl.data, ctrl.data.game.winner);
-  var status = gameStatusApi.toLabel(ctrl.data.game.status.name, ctrl.data.game.winner, ctrl.data.game.variant.key) +
+  const result = gameApi.result(ctrl.data);
+  const winner = gameApi.getPlayer(ctrl.data, ctrl.data.game.winner);
+  const status = gameStatusApi.toLabel(ctrl.data.game.status.name, ctrl.data.game.winner, ctrl.data.game.variant.key) +
     (winner ? '. ' + i18n(winner.color === 'white' ? 'whiteIsVictorious' : 'blackIsVictorious') + '.' : '');
   const resultDom = gameStatusApi.aborted(ctrl.data) ? [] : [
-    result, m('br'), m('br')
+    m('strong', result), m('br')
   ];
-  resultDom.push(m('div.resultStatus', status));
+  resultDom.push(m('em.resultStatus', status));
   const buttons = ctrl.data.player.spectator ? [
     button.shareLink(ctrl),
     button.sharePGN(ctrl),
+    button.analysisBoard(ctrl),
     ctrl.data.tv ? tvChannelSelector(ctrl) : null
   ] : [
     button.shareLink(ctrl),
@@ -329,15 +384,20 @@ function renderGameEndedActions(ctrl) {
     button.newOpponent(ctrl),
     button.answerOpponentRematch(ctrl),
     button.cancelRematch(ctrl),
-    button.rematch(ctrl)
+    button.rematch(ctrl),
+    button.analysisBoard(ctrl)
   ];
-  return [
-    m('div.result', resultDom),
-    m('div.control.buttons', buttons)
-  ];
+
+  return (
+    <div className="game_controls">
+      <div className="result">{resultDom}</div>
+      <div className="control buttons">{buttons}</div>
+    </div>
+  );
 }
 
-function gameInfos(data) {
+function gameInfos(ctrl) {
+  const data = ctrl.data;
   const time = gameApi.time(data);
   const mode = data.game.rated ? i18n('rated') : i18n('casual');
   const icon = data.opponent.ai ? ':' : utils.gameIcon(data.game.perf);
@@ -356,14 +416,21 @@ function gameInfos(data) {
     m('div.icon-game', {
       'data-icon': icon ? icon : ''
     }),
-    m('div.game-title.no_select', infos)
+    m('div.game-title.no_select', infos),
+    session.isConnected() ? m('button.star', {
+      config: helper.ontouch(
+        ctrl.toggleBookmark,
+        () => window.plugins.toast.show(i18n('bookmarkThisGame'), 'short', 'center')
+      ),
+      'data-icon': data.bookmarked ? 't' : 's'
+    }) : null
   ];
 }
 
 function renderGamePopup(ctrl, isPortrait) {
   return popupWidget(
     'player_controls',
-    isPortrait ? () => gameInfos(ctrl.data) : null,
+    isPortrait ? () => gameInfos(ctrl) : null,
     gameApi.playable(ctrl.data) ?
       () => renderGameRunningActions(ctrl) : () => renderGameEndedActions(ctrl),
     ctrl.vm.showingActions,
@@ -408,8 +475,10 @@ function renderGameActionsBar(ctrl, isPortrait) {
     <section className="actions_bar" key="game-actions-bar">
       <button className={gmClass} key="gameMenu" config={helper.ontouch(ctrl.showActions)} />
       {ctrl.chat ?
-      <button className={chatClass} data-icon="c" key="chat" config={helper.ontouch(ctrl.chat.open || utils.noop)} /> : <button className="action_bar_button empty" />
+      <button className={chatClass} data-icon="c" key="chat"
+        config={helper.ontouch(ctrl.chat.open)} /> : null
       }
+      {ctrl.notes ? button.notes(ctrl) : null}
       {button.flipBoard(ctrl)}
       {button.first(ctrl)}
       {button.backward(ctrl)}

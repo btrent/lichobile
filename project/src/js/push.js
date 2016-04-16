@@ -1,6 +1,11 @@
 import session from './session';
 import settings from './settings';
+import i18n from './i18n';
+import { lightPlayerName } from './utils';
 import { request } from './http';
+import { timeline as getTimeline } from './xhr';
+import challengesApi from './lichess/challenges';
+import timeline from './lichess/timeline';
 import m from 'mithril';
 
 let push;
@@ -8,12 +13,14 @@ let push;
 export default {
   register() {
 
-    if (settings.general.notifications()) {
+    if (window.cordova.platformId === 'android' && settings.general.notifications.allow()) {
 
       push = window.PushNotification.init({
         android: {
           senderID: window.lichess.gcmSenderId,
-          sound: true
+          sound: settings.general.notifications.sound(),
+          vibrate: settings.general.notifications.vibrate(),
+          clearNotifications: true
         },
         ios: {
           sound: true,
@@ -37,13 +44,67 @@ export default {
       push.on('notification', function(data) {
         // if app was foreground we don't want to disturb too much so we'll
         // just refresh nb of turns in board icon
-        if (data.additionalData && data.additionalData.foreground) {
-          // TODO don't refresh but use payload to modify game data
-          session.refresh();
-        }
-        // if background we go to the game
-        else if (data.additionalData && data.additionalData.userData) {
-          m.route(`/game/${data.additionalData.userData.fullId}`);
+        const payload = data.additionalData;
+        if (payload) {
+          if (payload.foreground) {
+            // if foreground just refresh according data
+            if (payload.userData) {
+              switch (payload.userData.type) {
+                case 'challengeCreate':
+                  challengesApi.refresh().then(() => m.redraw());
+                  break;
+                case 'challengeAccept':
+                  Promise.all([
+                    challengesApi.refresh(),
+                    session.refresh()
+                  ])
+                  .then(() => {
+                    window.plugins.toast.show(
+                      i18n('userAcceptsYourChallenge', lightPlayerName(payload.userData.joiner)), 'long', 'top');
+                    m.redraw();
+                  });
+                  break;
+                case 'gameMove':
+                  session.refresh().then(v => {
+                    if (v) m.redraw();
+                  });
+                  break;
+                case 'gameFinish':
+                  Promise.all([
+                    session.refresh(),
+                    timeline.refresh()
+                  ])
+                  .then(() => m.redraw());
+                  break;
+              }
+            }
+          }
+          // if background we go to the game or challenge
+          else if (payload.userData) {
+            switch (payload.userData.type) {
+              case 'challengeCreate':
+                m.route(`/challenge/${payload.userData.challengeId}`);
+                break;
+              case 'challengeAccept':
+                challengesApi.refresh();
+                m.route(`/game/${payload.userData.challengeId}`);
+                break;
+              case 'gameMove':
+                m.route(`/game/${payload.userData.fullId}`);
+                break;
+              case 'gameFinish':
+                getTimeline().then(t => {
+                  timeline.set(t);
+                  // if only one unread, assume it's the notif and set it as
+                  // already read
+                  if (timeline.unreadCount() === 1) {
+                    timeline.setLastReadTimestamp();
+                  }
+                });
+                m.route(`/game/${payload.userData.fullId}`);
+                break;
+            }
+          }
         }
       });
 
@@ -56,7 +117,10 @@ export default {
         request('/mobile/unregister', {
           method: 'POST',
           deserialize: v => v
-        }).then(() => push = null);
+        }).then(() => {
+          push = null;
+        });
+
       }, console.log.bind(console));
     }
   }

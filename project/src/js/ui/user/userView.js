@@ -1,5 +1,6 @@
 import userPerfs from '../../lichess/perfs';
-import { header as headerWidget, backButton, empty } from '../shared/common';
+import { header as headerWidget, backButton } from '../shared/common';
+import { getLanguageNativeName } from '../../utils/langs';
 import perf from '../shared/perf';
 import layout from '../layout';
 import i18n from '../../i18n';
@@ -9,6 +10,8 @@ import session from '../../session';
 
 export default function view(ctrl) {
   const user = ctrl.user();
+
+  if (!user) return null;
 
   function header() {
     //const title = (user.title ? `${user.title} ` : '') + user.username;
@@ -29,11 +32,12 @@ export default function view(ctrl) {
     );
   }
 
-  return layout.free(header, profile, empty, empty);
+  return layout.free(header, profile);
 }
 
 function renderWarnings(user) {
-  if (user.engine || !user.booster) return null;
+  if (!user.engine && !user.booster) return null;
+
   return (
     <section className="warnings">
       {user.engine ?
@@ -74,6 +78,7 @@ function renderProfile(user) {
         <p className="profileBio">{user.profile.bio}</p> : null
         }
         <div className="userInfos">
+          <p className="language fa fa-comment-o withIcon">{getLanguageNativeName(user.language)}</p>
           <p className="location">
             {location}
             {country ?
@@ -118,8 +123,8 @@ function renderRatings(user) {
   }
 
   return (
-    <section className="perfs">
-      {userPerfs(user).filter(isShowing).map(p => perf(p.key, p.name, p.perf))}
+    <section id="userProfileRatings" className="perfs">
+      {userPerfs(user).filter(isShowing).map(p => perf(p.key, p.name, p.perf, user))}
     </section>
   );
 }
@@ -127,7 +132,7 @@ function renderRatings(user) {
 function renderActions(ctrl) {
   const user = ctrl.user();
   return (
-    <section id="userProfileActions">
+    <section id="userProfileActions" class="noPadding">
       <div className="list_item nav"
         config={helper.ontouchY(ctrl.goToGames)}
         key="view_all_games"

@@ -1,27 +1,61 @@
 import * as utils from '../../utils';
 import helper from '../helper';
-import { header as headerWidget, backButton, empty } from '../shared/common';
+import { header as headerWidget, backButton } from '../shared/common';
 import layout from '../layout';
 import formWidgets from '../shared/form';
 import settings from '../../settings';
+import session from '../../session';
 import i18n from '../../i18n';
-import push from '../../push';
 import sound from '../../sound';
+import socket from '../../socket';
 import m from 'mithril';
 
+export default {
+  controller() {
+    helper.analyticsTrackView('Settings');
+    socket.createDefault();
+  },
+
+  view() {
+    const header = utils.partialf(headerWidget, null,
+      backButton(i18n('settings'))
+    );
+    return layout.free(header, renderBody);
+  }
+};
+
 function renderBody() {
-  return [
+  return m('div', {
+    style: { width: '100%', height: '100%' }
+  }, [
     m('ul.settings_list.general.native_scroller.page', [
+      utils.hasNetwork() && session.isConnected() ? m('li.list_item.nav', {
+        key: 'preferences',
+        config: helper.ontouchY(utils.f(m.route, '/settings/preferences'))
+      }, i18n('preferences')) : null,
       m('li.list_item.nav', {
+        key: 'lang',
+        config: helper.ontouchY(utils.f(m.route, '/settings/lang'))
+      }, i18n('language')),
+      m('li.list_item.nav', {
+        key: 'gameDisplay',
         config: helper.ontouchY(utils.f(m.route, '/settings/gameDisplay'))
       }, i18n('gameDisplay')),
       m('li.list_item.nav', {
-        config: helper.ontouchY(utils.f(m.route, '/settings/gameBehavior'))
-      }, i18n('gameBehavior')),
+        key: 'boardTheme',
+        config: helper.ontouchY(utils.f(m.route, '/settings/themes/board'))
+      }, `${i18n('theming')} (${i18n('board')})`),
       m('li.list_item.nav', {
-        config: helper.ontouchY(utils.f(m.route, '/settings/lang'))
-      }, i18n('language')),
-      m('li.list_item.settingsChoicesInline', [
+        key: 'piecesTheme',
+        config: helper.ontouchY(utils.f(m.route, '/settings/themes/piece'))
+      }, `${i18n('theming')} (${i18n('pieces')})`),
+      window.cordova.platformId === 'android' ? m('li.list_item', {
+        key: 'notifications',
+        config: helper.ontouchY(utils.f(m.route, '/settings/notifications'))
+      }, i18n('notifications')) : null,
+      m('li.list_item.settingsChoicesInline', {
+        key: 'backgroundTheme'
+      }, [
         m('label', 'Background'),
         m('fieldset', [
           m('div.nice-radio', formWidgets.renderRadio(
@@ -45,26 +79,14 @@ function renderBody() {
             }
         ))])
       ]),
-      m('li.list_item', formWidgets.renderCheckbox(i18n('sound'), 'sound', settings.general.sound, sound.onSettingChange)),
-      m('li.list_item', formWidgets.renderCheckbox('Allow notifications', 'sound', settings.general.notifications, isOn => {
-        if (isOn) push.register();
-        else push.unregister();
-      })),
-      m('li.list_item', formWidgets.renderCheckbox(i18n('allowAnalytics'), 'sound', settings.general.analytics))
+      m('li.list_item', {
+        key: 'sound'
+      }, formWidgets.renderCheckbox(i18n('sound'), 'sound', settings.general.sound, sound.onSettingChange)),
+      m('li.list_item', {
+        key: 'analytics'
+      }, formWidgets.renderCheckbox(i18n('allowAnalytics'), 'analytics', settings.general.analytics))
     ]),
     window.lichess.version ? m('section.app_version', 'v' + window.lichess.version) : null
-  ];
+  ]);
 }
 
-module.exports = {
-  controller: function() {
-    helper.analyticsTrackView('Settings');
-  },
-
-  view: function() {
-    const header = utils.partialf(headerWidget, null,
-      backButton(i18n('settings'))
-    );
-    return layout.free(header, renderBody, empty, empty);
-  }
-};

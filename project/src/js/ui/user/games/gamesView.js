@@ -1,6 +1,6 @@
 import * as utils from '../../../utils';
 import helper from '../../helper';
-import { header as headerWidget, backButton, empty } from '../../shared/common';
+import { header as headerWidget, backButton } from '../../shared/common';
 import layout from '../../layout';
 import gameApi from '../../../lichess/game';
 import i18n from '../../../i18n';
@@ -35,7 +35,7 @@ export default function view(ctrl) {
     );
   }
 
-  return layout.free(header, renderBody, empty, empty);
+  return layout.free(header, renderBody);
 }
 
 function renderAllGames(ctrl) {
@@ -74,7 +74,7 @@ function renderGame(ctrl, g, index, userId) {
   const star = g.bookmarked ? 't' : 's';
 
   return (
-    <li className={`list_item userGame ${evenOrOdd}`}>
+    <li className={`list_item userGame ${evenOrOdd}`} key={g.id}>
       { session.isConnected() ?
         <button className="iconStar" data-icon={star} config={bookmarkAction(ctrl, g.id, index)} /> : null
       }

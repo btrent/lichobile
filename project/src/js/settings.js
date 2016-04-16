@@ -1,5 +1,5 @@
 import store from './storage';
-import range from 'lodash/utility/range';
+import range from 'lodash/range';
 
 function localstorageprop(key, initialValue) {
   return function() {
@@ -50,7 +50,11 @@ export default {
       piece: localstorageprop('settings.theme.piece', 'cburnett')
     },
     analytics: localstorageprop('settings.analytics', true),
-    notifications: localstorageprop('settings.notifications', true)
+    notifications: {
+      allow: localstorageprop('settings.notifications', true),
+      vibrate: localstorageprop('settings.notifications.vibrate', true),
+      sound: localstorageprop('settings.notifications.sound', true)
+    }
   },
 
   game: {
@@ -58,28 +62,53 @@ export default {
       'kingOfTheHill', 'threeCheck', 'atomic', 'horde', 'racingKings'
     ],
     animations: localstorageprop('settings.gameAnimations', true),
+    highlights: localstorageprop('settings.boardHighlights', true),
     pieceDestinations: localstorageprop('settings.pieceDestinations', true),
-    coords: localstorageprop('settings.coords', true),
-    moveConfirmation: localstorageprop('settings.game.moveConfirmation', 'correspondence')
+    coords: localstorageprop('settings.coords', true)
+  },
+
+  analyse: {
+    supportedVariants: ['standard', 'chess960', 'antichess', 'fromPosition',
+      'kingOfTheHill', 'threeCheck', 'atomic', 'horde', 'racingKings'
+    ],
+    enableCeval: localstorageprop('settings.analyse.enableCeval', false),
+    showBestMove: localstorageprop('settings.analyse.showBestMove', true)
   },
 
   otb: {
-    flipPieces: localstorageprop('settings.otb.flipPieces', false)
+    flipPieces: localstorageprop('settings.otb.flipPieces', false),
+    useSymmetric: localstorageprop('settings.otb.useSymmetric', true),
+    variant: localstorageprop('settings.otb.variant', 'standard'),
+    availableVariants: [
+      ['Standard', 'standard'],
+      ['Chess960', 'chess960'],
+      ['King of the Hill', 'kingOfTheHill'],
+      ['Three-check', 'threeCheck'],
+      ['Antichess', 'antichess'],
+      ['Atomic', 'atomic'],
+      ['Horde', 'horde'],
+      ['Racing Kings', 'racingKings']
+    ]
   },
 
   ai: {
     availableOpponents: [
-      ['Tuco Salamanca', '1'],
-      ['Jesse Pinkman', '2'],
-      ['Skyler White', '3'],
-      ['Saul Goodman', '4'],
-      ['Mike Ehrmantraut', '5'],
-      ['Lydia Rodarte-Quayle', '6'],
-      ['Gustavo Fring', '7'],
-      ['Heisenberg', '8']
+      ['Stockfish', '1'],
+      ['Stockfish', '2'],
+      ['Stockfish', '3'],
+      ['Stockfish', '4'],
+      ['Stockfish', '5'],
+      ['Stockfish', '6'],
+      ['Stockfish', '7'],
+      ['Stockfish', '8']
     ],
     color: localstorageprop('settings.ai.color', 'white'),
-    opponent: localstorageprop('settings.ai.opponent', '1')
+    opponent: localstorageprop('settings.ai.opponent', '1'),
+    variant: localstorageprop('settings.ai.variant', 'standard'),
+    availableVariants: [
+      ['Standard', 'standard'],
+      ['Chess960', 'chess960']
+    ]
   },
 
   gameSetup: {
@@ -157,6 +186,7 @@ export default {
         ['Antichess', '6'],
         ['Atomic', '7'],
         ['Horde', '8'],
+        ['Racing Kings', '9'],
         ['From Position', '3']
       ],
       color: localstorageprop('settings.game.invite.color', 'random'),

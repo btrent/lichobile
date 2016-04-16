@@ -12,6 +12,9 @@ lichess mobile
 - Chat with your opponent.
 - Practice with chess puzzles
 - Over The Board mode to play offline with a friend.
+- Play multiple variants, online or offline: Chess 960, King Of The Hill, Three-check, Antichess, Atomic chess, Horde, Racing Kings!
+- Game analysis with local computer evaluation
+- Board editor
 - Offline AI mode.
 - Available in 80 languages.
 - Designed for both phones and tablets, supporting landscape mode
@@ -21,9 +24,9 @@ Get it now from [lichess.org/mobile](http://lichess.org/mobile)
 
 ## Requirements
 
-* [node](http://nodejs.org) v4.2.x
+* [node](http://nodejs.org) v5.x
 * [gulp](http://gulpjs.com/) version 3.9.x
-* [tarifa](http://tarifa.tools) version 0.12.x
+* [tarifa](http://tarifa.tools) latest version
 
 **Android:**
 
@@ -48,6 +51,7 @@ install plugins.
 
 Make sure you installed all deps:
 
+    $ cd project
     $ npm install
 
 Then copy `project/env.json.example` to `project/env.json` and modify settings

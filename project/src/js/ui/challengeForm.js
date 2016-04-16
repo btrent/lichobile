@@ -1,10 +1,11 @@
 import * as utils from '../utils';
-import { inviteFriend } from '../xhr';
+import { challenge as challengeXhr } from '../xhr';
 import settings from '../settings';
 import session from '../session';
 import formWidgets from './shared/form';
 import popupWidget from './shared/popup';
 import i18n from '../i18n';
+import storage from '../storage';
 import backbutton from '../backbutton';
 import ViewOnlyBoard from './shared/ViewOnlyBoard';
 import helper from './helper';
@@ -43,12 +44,26 @@ challengeForm.close = function(fromBB) {
 };
 
 function challenge() {
-  var userId = challengeForm.userId;
-  return inviteFriend(userId, challengeForm.fen).then(function(data) {
-    var url = `/game${data.url.round}`;
-    if (userId) url += `/user/${userId}`;
-    m.route(url);
-  }, function(error) {
+  const userId = challengeForm.userId;
+  return challengeXhr(userId, challengeForm.fen).then(data => {
+
+    helper.analyticsTrackEvent('Challenge', 'Sent');
+
+    if (session.isConnected() && (
+      data.challenge.timeControl.type === 'correspondence' ||
+      data.challenge.timeControl.type === 'unlimited')) {
+
+      if (!storage.get('donotshowpersistentchallengeexplanation')) {
+        window.navigator.notification.alert(i18n('persistentChallengeCreated'), function() {
+          storage.set('donotshowpersistentchallengeexplanation', true);
+        });
+      }
+      m.route('/correspondence', { tab: 'challenges' });
+    }
+    if (!data.challenge.destUser || data.challenge.timeControl.type === 'clock') {
+      m.route(`/challenge/${data.challenge.id}`);
+    }
+  }, error => {
     utils.handleXhrError(error);
     throw error;
   });
@@ -169,7 +184,7 @@ function renderForm() {
   }, [
     m('fieldset', generalFieldset),
     m('fieldset#clock', timeFieldset),
-    m('button[data-icon=E][type=submit]', challengeForm.actionName)
+    m('button[data-icon=E][type=submit].newGameButton', challengeForm.actionName)
   ]);
 }
 

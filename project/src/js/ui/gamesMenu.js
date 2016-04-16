@@ -21,7 +21,7 @@ gamesMenu.open = function() {
   backbutton.stack.push(gamesMenu.close);
   gamesMenu.isOpen = true;
   setTimeout(function() {
-    if (scroller) scroller.goToPage(1, 0);
+    if (utils.hasNetwork() && scroller) scroller.goToPage(1, 0);
   }, 400);
   session.refresh();
 };
@@ -40,18 +40,20 @@ function joinGame(g) {
 }
 
 function acceptChallenge(id) {
-  return xhr.joinChallenge(id)
-  .then(data =>
-    m.route('/game' + data.url.round)
-  )
+  return xhr.acceptChallenge(id)
+  .then(data => {
+    helper.analyticsTrackEvent('Challenge', 'Accepted');
+    m.route('/game' + data.url.round);
+  })
   .then(() => challengesApi.remove(id))
   .then(gamesMenu.close);
 }
 
 function declineChallenge(id) {
-  return xhr.declineChallenge(id).then(() =>
-    challengesApi.remove(id)
-  );
+  return xhr.declineChallenge(id).then(() => {
+    helper.analyticsTrackEvent('Challenge', 'Declined');
+    challengesApi.remove(id);
+  });
 }
 
 function cardDims() {
@@ -81,9 +83,10 @@ function cardDims() {
 
 function renderViewOnlyBoard(cDim, fen, lastMove, orientation, variant) {
   const style = cDim ? { height: cDim.innerW + 'px' } : {};
+  const bounds = { width: cDim.innerW, height: cDim.innerW };
   return (
     <div className="boardWrapper" style={style}>
-      {m.component(ViewOnlyBoard, { fen, lastMove, orientation, variant })}
+      {m.component(ViewOnlyBoard, { bounds, fen, lastMove, orientation, variant })}
     </div>
   );
 }
@@ -95,6 +98,33 @@ function timeLeft(g) {
   return m('time', {
     datetime: time.format()
   }, time.fromNow());
+}
+
+function savedGameDataToCardData(data) {
+  const obj = {
+    color: data.player.color,
+    fen: data.game.fen,
+    fullId: data.url.round.substr(1),
+    gameId: data.game.id,
+    isMyTurn: gameApi.isPlayerTurn(data),
+    lastMove: data.game.lastMove,
+    perf: data.game.perf,
+    opponent: {},
+    rated: data.game.rated,
+    secondsLeft: data.correspondence && data.correspondence[data.player.color],
+    speed: data.game.speed,
+    variant: data.game.variant
+  };
+
+  if (data.opponent.user) {
+    obj.opponent = {
+      id: data.opponent.user.id,
+      username: data.opponent.user.username,
+      rating: data.opponent.rating
+    };
+  }
+
+  return obj;
 }
 
 function renderGame(g, cDim, cardStyle) {
@@ -131,30 +161,34 @@ function renderGame(g, cDim, cardStyle) {
   );
 }
 
-function renderChallenge(c, cDim, cardStyle) {
-  const icon = utils.gameIcon(c.game.perf);
-  const mode = c.game.rated ? i18n('rated') : i18n('casual');
-  const timeAndMode = gameApi.time(c) + ', ' + mode;
-  const challenger = c.player.user ? c.player : c.opponent;
+function renderIncomingChallenge(c, cDim, cardStyle) {
+  if (!c.challenger) {
+    return null;
+  }
+
+  const mode = c.rated ? i18n('rated') : i18n('casual');
+  const timeAndMode = utils.challengeTime(c) + ', ' + mode;
+  const mark = c.challenger.provisional ? '?' : '';
+  const playerName = `${c.challenger.id} (${c.challenger.rating}${mark})`;
 
   return (
     <div className="card standard challenge" style={cardStyle}>
-      {renderViewOnlyBoard(cDim, c.game.fen, c.game.lastMove, null, c.game.variant)}
+      {renderViewOnlyBoard(cDim, c.initialFen, null, null, c.variant)}
       <div className="infos">
-        <div className="icon-game" data-icon={icon}></div>
+        <div className="icon-game" data-icon={c.perf.icon}></div>
         <div className="description">
-          <h2 className="title">{i18n('playerisInvitingYou', utils.playerName(challenger, true))}</h2>
+          <h2 className="title">{i18n('playerisInvitingYou', playerName)}</h2>
           <p className="variant">
-            <span className="variantName">{i18n('toATypeGame', c.game.variant.name)}</span>
+            <span className="variantName">{i18n('toATypeGame', c.variant.name)}</span>
             <span className="time-indication" data-icon="p">{timeAndMode}</span>
           </p>
         </div>
         <div className="actions">
-          <button config={helper.ontouchX(utils.f(acceptChallenge, c.game.id))}>
+          <button config={helper.ontouchX(utils.f(acceptChallenge, c.id))}>
             {i18n('accept')}
           </button>
           <button config={helper.ontouchX(
-            helper.fadesOut(declineChallenge.bind(undefined, c.game.id), '.card', 250)
+            helper.fadesOut(declineChallenge.bind(undefined, c.id), '.card', 250)
           )}>
             {i18n('decline')}
           </button>
@@ -166,14 +200,17 @@ function renderChallenge(c, cDim, cardStyle) {
 
 function renderAllGames(cDim) {
   const nowPlaying = session.nowPlaying();
-  const challenges = challengesApi.list();
+  const challenges = challengesApi.incoming();
   const cardStyle = cDim ? {
     width: (cDim.w - cDim.margin * 2) + 'px',
     height: cDim.h + 'px',
     marginLeft: cDim.margin + 'px',
     marginRight: cDim.margin + 'px'
   } : {};
-  const nbCards = challenges.length + nowPlaying.length + 1;
+  const nbCards = utils.hasNetwork() ?
+    challenges.length + nowPlaying.length + 1 :
+    utils.getOfflineGames().length;
+
   let wrapperStyle, wrapperWidth;
   if (cDim) {
     // scroller wrapper width
@@ -190,9 +227,18 @@ function renderAllGames(cDim) {
     wrapperStyle = {};
   }
 
-  const challengesDom = challenges.map(c => renderChallenge(c, cDim, cardStyle));
+  const challengesDom = challenges.map(c => {
+    return renderIncomingChallenge(c, cDim, cardStyle);
+  });
 
-  const allCards = challengesDom.concat(nowPlaying.map(g => renderGame(g, cDim, cardStyle)));
+  var allCards = challengesDom.concat(nowPlaying.map(g => renderGame(g, cDim, cardStyle)));
+
+  if (!utils.hasNetwork()) {
+    allCards = utils.getOfflineGames().map(d => {
+      const g = savedGameDataToCardData(d);
+      return renderGame(g, cDim, cardStyle);
+    });
+  }
 
   if (!helper.isWideScreen()) {
     const newGameCard = (
@@ -209,14 +255,10 @@ function renderAllGames(cDim) {
       </div>
     );
 
-    allCards.unshift(newGameCard);
+    if (utils.hasNetwork()) allCards.unshift(newGameCard);
   }
 
-  return (
-    <div id="all_games" style={wrapperStyle}>
-      {allCards}
-    </div>
-  );
+  return m('div#all_games', { style: wrapperStyle }, allCards);
 }
 
 gamesMenu.view = function() {

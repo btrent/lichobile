@@ -1,45 +1,47 @@
 import settings from '../settings';
-import m from 'mithril';
+import throttle from 'lodash/throttle';
+import { getChallenges } from '../xhr';
 
-const challenges = {};
+var incoming = [];
+var sending = [];
 
-function timeout(key) {
-  return setTimeout(() => {
-    delete challenges[key];
-    m.redraw();
-  }, 3000);
+function supportedAndCreated(c) {
+  return settings.game.supportedVariants.indexOf(c.variant.key) !== -1 &&
+    c.status === 'created';
 }
 
-function isSupported(c) {
-  return settings.game.supportedVariants.indexOf(c.game.variant.key) !== -1;
+function set(data) {
+  incoming = data.in;
+  sending = data.out;
 }
 
 export default {
-  list() {
-    return Object.keys(challenges).map(k => challenges[k].val).filter(isSupported);
+  all() {
+    return incoming.filter(supportedAndCreated).concat(sending.filter(supportedAndCreated));
   },
 
-  count() {
-    return Object.keys(challenges).map(k => challenges[k].val).filter(isSupported).length;
+  incoming() {
+    return incoming.filter(supportedAndCreated);
   },
 
-  hasKey(key) {
-    return challenges.hasOwnProperty(key);
+  sending() {
+    return sending.filter(supportedAndCreated);
   },
 
-  add(key, val) {
-    challenges[key] = { timeoutID: timeout(key), val };
+  set,
+
+  refresh() {
+    return throttle(getChallenges, 1000)().then(set);
   },
 
-  remind(key) {
-    let c = challenges[key];
-    if (c) {
-      clearTimeout(c.timeoutID);
-      c.timeoutID = timeout(key);
-    }
+  remove(id) {
+    incoming = incoming.filter(c => c.id !== id);
+    sending = sending.filter(c => c.id !== id);
   },
 
-  remove(key) {
-    delete challenges[key];
+  isPersistent(c) {
+    return c.timeControl.type === 'correspondence' ||
+      c.timeControl.type === 'unlimited';
   }
+
 };
