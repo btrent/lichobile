@@ -25,13 +25,13 @@ export default {
           </div>
           <div className="ratingAndTime">
             <div>
-              {gameObj.player.rating}
+              
             </div>
             <div className="time" data-icon="p">
               {gameApi.time(gameObj)}
             </div>
             <div>
-              {gameObj.opponent.rating}
+              
             </div>
           </div>
         </div> : null

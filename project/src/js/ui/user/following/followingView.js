@@ -44,7 +44,7 @@ export function renderPlayer(ctrl, obj) {
         </div>
         { perfKey ?
         <span className="rating" data-icon={gameIcon(perfKey)}>
-          {perf.rating}
+          
         </span> : null
         }
       </div>

@@ -128,7 +128,6 @@ function renderPlayer(p) {
       {userStatus(p)}
       <div className="playerMiniPerf">
         <span className="rating" data-icon={gameIcon(perfKey)}>
-          {perf.rating}
         </span>
         {helper.progress(perf.progress)}
       </div>

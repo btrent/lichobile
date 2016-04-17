@@ -137,7 +137,7 @@ function createLeaderboardItemRenderer(showTrophies) {
     }
     return (
       <tr key={player.name} className='list_item'>
-        <td className='tournamentPlayer'><span className={trophy}>{player.name + ' (' + player.rating + ')'}</span></td>
+        <td className='tournamentPlayer'><span className={trophy}>{player.name}</span></td>
         <td className='tournamentPoints'><span className={player.sheet.fire ? 'on-fire' : 'off-fire'} data-icon='Q'>{player.score}</span></td>
       </tr>
     );
@@ -150,7 +150,7 @@ function tournamentFeaturedGame(data) {
     <div className='tournamentGames'>
       <p className='tournamentTitle'>Featured Game</p>
       <div class='featuredGame nav' config={h.ontouchY(() => m.route('/game/' + data.featured.id))}>
-          {data.featured.white.name} ({data.featured.white.rating}) vs. {data.featured.black.name} ({data.featured.black.rating})
+          {data.featured.white.name} vs. {data.featured.black.name} 
       </div>
     </div>
   );

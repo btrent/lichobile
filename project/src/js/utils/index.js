@@ -101,8 +101,7 @@ export function noop() {}
 
 export function lightPlayerName(player, withRating) {
   if (player) {
-    return (player.title ? player.title + ' ' + player.name : player.name) + (
-      withRating ? ' (' + player.rating + ')' : '');
+    return player.name; 
   } else {
     return 'Anonymous';
   }

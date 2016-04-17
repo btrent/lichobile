@@ -29,22 +29,22 @@ export default function view(ctrl) {
           </tr>
           <tr>
             <th class="variantPerf"> {i18n('rating')} </th>
-            <td class="variantPerf"> {Math.round(data.perf.glicko.rating) + (data.perf.glicko.provisional ? '?' : '')} </td>
+            <td class="variantPerf">  </td>
             <td> </td>
           </tr>
           <tr class={isEmpty(data.perf.progress)}>
             <th class="variantPerf"> Last 12 games progress </th>
-            <td class="variantPerf"> {helper.progress(data.perf.progress)} </td>
+            <td class="variantPerf">  </td>
             <td> </td>
           </tr>
           <tr class={isEmpty(data.rank)}>
             <th class="variantPerf"> {i18n('rank')} </th>
-            <td class="variantPerf"> {data.rank === null ? '' : data.rank} </td>
+            <td class="variantPerf">  </td>
             <td> </td>
           </tr>
           <tr class={isEmpty(data.percentile)}>
             <th class="variantPerf"> Percentile </th>
-            <td class="variantPerf"> {data.percentile === null ? '' : (data.percentile + '%')} </td>
+            <td class="variantPerf">  </td>
             <td> </td>
           </tr>
           <tr> <td class="variantPerfSpacer" colspan="3"> </td> </tr>
@@ -53,18 +53,18 @@ export default function view(ctrl) {
           </tr>
           <tr>
             <th class="variantPerf"> Avg opponent {i18n('rating').toLowerCase()} </th>
-            <td class="variantPerf"> {Math.round(data.stat.count.opAvg)} </td>
+            <td class="variantPerf">  </td>
             <td> </td>
           </tr>
           <tr class={isEmpty(data.stat.highest)}>
             <th class="variantPerf"> Highest {i18n('rating').toLowerCase()} </th>
-            <td class="variantPerf"> <span class="progress positive"> {data.stat.highest ? data.stat.highest.int : ''} </span> </td>
-            <td class="variantPerf"> <span class="progress positive"> {data.stat.highest ? data.stat.highest.at.substring(0, 10) : ''} </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
           </tr>
           <tr class={isEmpty(data.stat.lowest)}>
             <th class="variantPerf"> Lowest {i18n('rating').toLowerCase()} </th>
-            <td class="variantPerf"> <span class="progress positive"> {data.stat.lowest ? data.stat.lowest.int : ''} </span> </td>
-            <td class="variantPerf"> <span class="progress positive"> {data.stat.lowest ? data.stat.lowest.at.substring(0, 10) : ''} </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
           </tr>
           <tr>
             <th class="variantPerf"> {i18n('tpTimeSpentPlaying', 0).split(':')[0]} </th>
@@ -76,18 +76,18 @@ export default function view(ctrl) {
           </tr>
           <tr>
             <th class="variantPerf"> {i18n('wins')} </th>
-            <td class="variantPerf"> <span class="progress positive"> {data.stat.count.win} </span> </td>
-            <td class="variantPerf"> <span class="progress positive"> {Math.round((data.stat.count.win / data.stat.count.all) * 100) + '%'} </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
+            <td class="variantPerf"> <span class="progress positive">  </span> </td>
           </tr>
           <tr>
             <th class="variantPerf"> {toTitleCase(i18n('nbDraws', 0).split(' ')[1])} </th>
-            <td class="variantPerf"> {data.stat.count.draw} </td>
-            <td class="variantPerf"> {Math.round((data.stat.count.draw / data.stat.count.all) * 100) + '%'} </td>
+            <td class="variantPerf">  </td>
+            <td class="variantPerf">  </td>
           </tr>
           <tr>
             <th class="variantPerf"> {i18n('losses')} </th>
-            <td class="variantPerf sumLine"> <span class="progress negative"> {data.stat.count.loss} </span> </td>
-            <td class="variantPerf"> <span class="progress negative"> {Math.round((data.stat.count.loss / data.stat.count.all) * 100) + '%'} </span> </td>
+            <td class="variantPerf sumLine"> <span class="progress negative">  </span> </td>
+            <td class="variantPerf"> <span class="progress negative">  </span> </td>
           </tr>
           <tr>
             <th class="variantPerf"> Total </th>

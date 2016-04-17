@@ -117,7 +117,7 @@ function renderSeek(ctrl, seek) {
       'data-icon': seek.perf.icon
     }),
     m('div.body', [
-      m('div.player', seek.username + ' (' + seek.rating + ')'),
+      m('div.player', seek.username),
       m('div.variant', seek.variant.name),
       m('div.time', [
         seek.days ? i18n(seek.days === 1 ? 'oneDay' : 'nbDays', seek.days) : '∞',

@@ -169,7 +169,7 @@ function renderIncomingChallenge(c, cDim, cardStyle) {
   const mode = c.rated ? i18n('rated') : i18n('casual');
   const timeAndMode = utils.challengeTime(c) + ', ' + mode;
   const mark = c.challenger.provisional ? '?' : '';
-  const playerName = `${c.challenger.id} (${c.challenger.rating}${mark})`;
+  const playerName = `${c.challenger.id}`;
 
   return (
     <div className="card standard challenge" style={cardStyle}>

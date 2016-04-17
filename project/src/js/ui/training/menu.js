@@ -55,7 +55,7 @@ function renderDifficulty(ctrl) {
 
 export function renderUserInfos(ctrl) {
   return [
-    m('p', m.trust(i18n('yourPuzzleRatingX', `<strong>${ctrl.data.user.rating}</strong>`))),
+    m('p', m.trust(i18n('yourPuzzleRatingX', `<strong></strong>`))),
     helper.isPortrait() ? m('br') : null,
     ctrl.data.user.history ? m('canvas#puzzleChart', {
       width: '240px',

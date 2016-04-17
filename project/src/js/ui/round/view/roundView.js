@@ -300,7 +300,6 @@ function renderPlayTable(ctrl, player, material, position, isPortrait) {
 
   return (
     <section className="playTable" key={key}>
-      {renderAntagonistInfo(ctrl, player, material, position, isPortrait)}
       {ctrl.clock ?
         renderClock(ctrl.clock, player.color, runningColor) : (
         ctrl.correspondenceClock ?
@@ -309,6 +308,7 @@ function renderPlayTable(ctrl, player, material, position, isPortrait) {
           ) : null
         )
       }
+      {renderAntagonistInfo(ctrl, player, material, position, isPortrait)}
     </section>
   );
 }
