@@ -124,6 +124,28 @@ export default {
             ]);
           }))
         ]),
+	[
+	  m('button', {
+	      config: helper.ontouch(function () {
+		  socket.send('talk', "Good game");
+	      }
+          )}, "gg"),
+	  m('button', {
+	      config: helper.ontouch(function () {
+		  socket.send('talk', "Sorry - got to go");
+	      }
+          )}, "gtg"),
+	  m('button', {
+	      config: helper.ontouch(function () {
+		  socket.send('talk', "Finger slipped");
+	      }
+          )}, "slip"),
+	  m('button', {
+	      config: helper.ontouch(function () {
+		  socket.send('talk', "Very nice");
+	      }
+          )}, "nice")
+	],
         m('form.chat_form', {
           onsubmit: function(e) {
             e.preventDefault();
@@ -135,7 +157,8 @@ export default {
             ctrl.inputValue = '';
             socket.send('talk', msg);
           }
-        }, [
+        }, 
+	[
           m('input#chat_input.chat_input[type=text][placeholder=' + i18n('talkInChat') + ']', {
             value: ctrl.inputValue,
             config: function(el, isUpdate) {
