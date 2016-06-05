@@ -1,6 +1,6 @@
 import layout from '../layout';
 import { header } from '../shared/common';
-import { renderBoard } from '../round/view/roundView';
+import Board from '../shared/Board';
 import drag from './drag';
 import helper from '../helper';
 import i18n from '../../i18n';
@@ -29,6 +29,12 @@ export default function view(ctrl) {
     };
   }
 
+  const board = Board(
+    ctrl.data,
+    ctrl.chessground,
+    helper.isPortrait()
+  );
+
   function content() {
     if (helper.isPortrait())
       return m('div.editor', {
@@ -36,7 +42,7 @@ export default function view(ctrl) {
           config: editorConfig
         }, [
           sparePieces(ctrl, opposite, color, 'top'),
-          renderBoard(ctrl.data, ctrl.chessground),
+          board,
           sparePieces(ctrl, color, color, 'bottom'),
           renderActionsBar(ctrl)
         ]);
@@ -47,7 +53,7 @@ export default function view(ctrl) {
           config: editorConfig
         }, [
           sparePieces(ctrl, opposite, color, 'top'),
-          renderBoard(ctrl.data, ctrl.chessground),
+          board,
           sparePieces(ctrl, color, color, 'bottom')
         ]),
         m('section.table.editorTable', { key: 'table' }, [
@@ -105,7 +111,7 @@ function renderActionsBar(ctrl) {
         ctrl.continuePopup.open(ctrl.computeFen());
       }, () => window.plugins.toast.show(i18n('continueFromHere'), 'short', 'center'))
     }),
-    m('button.action_bar_button.fa.fa-eye', {
+    m('button.action_bar_button[data-icon=A]', {
       key: 'analyse',
       config: helper.ontouch(() => {
         const fen = encodeURIComponent(ctrl.computeFen());

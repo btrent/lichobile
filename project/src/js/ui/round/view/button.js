@@ -5,17 +5,10 @@ import throttle from 'lodash/throttle';
 import i18n from '../../../i18n';
 import socket from '../../../socket';
 import { getPGN } from '../roundXhr';
-import { handleXhrError, hasNetwork } from '../../../utils';
+import { handleXhrError, hasNetwork, boardOrientation } from '../../../utils';
 import lobby from '../../lobby';
 import m from 'mithril';
-
-function analysisBoardOrientation(data) {
-  if (data.game.variant.key === 'racingKings') {
-    return 'white';
-  } else {
-    return data.player.color;
-  }
-}
+import * as tournamentXhr from '../../tournament/tournamentXhr';
 
 export default {
   standard: function(ctrl, condition, icon, hint, socketMsg) {
@@ -23,13 +16,13 @@ export default {
       key: socketMsg,
       className: socketMsg,
       'data-icon': icon,
-      config: helper.ontouch(function() { socket.send(socketMsg); })
+      config: helper.ontouch(() => { socket.send(socketMsg); })
     }, i18n(hint)) : null;
   },
   shareLink: function(ctrl) {
     return m('button', {
       key: 'shareGameLink',
-      config: helper.ontouch(function() {
+      config: helper.ontouch(() => {
         window.plugins.socialsharing.share(null, null, null, gameApi.publicUrl(ctrl.data));
       })
     }, [m('span.fa.fa-link'), i18n('shareGameURL')]);
@@ -63,6 +56,30 @@ export default {
       </div>
     );
   },
+  resign: function(ctrl) {
+    return gameApi.resignable(ctrl.data) && !ctrl.vm.confirmResign ? m('button', {
+      key: 'resign',
+      className: 'resign',
+      'data-icon': 'b',
+      config: helper.ontouch(() => { ctrl.vm.confirmResign = true; })
+    }, i18n('resign')) : null;
+  },
+  resignConfirmation: function(ctrl) {
+    return gameApi.resignable(ctrl.data) && ctrl.vm.confirmResign ? (
+      <div key="resignConfirm">
+        <button className="binary_choice" data-icon="E"
+          config={helper.ontouch(() => { socket.send('resign'); })}
+        >
+          {i18n('resign')}
+        </button>
+        <button className="binary_choice" data-icon="L"
+          config={helper.ontouch(() => { ctrl.vm.confirmResign = false; })}
+        >
+          {i18n('cancel')}
+        </button>
+      </div>
+    ) : null;
+  },
   forceResign: function(ctrl) {
     return gameApi.forceResignable(ctrl.data) ?
       m('div.force_resign_zone.clearfix', {
@@ -70,10 +87,10 @@ export default {
       }, [
         m('div.notice', i18n('theOtherPlayerHasLeftTheGameYouCanForceResignationOrWaitForHim')),
         m('button.binary_choice.left', {
-          config: helper.ontouch(function() { socket.send('resign-force'); })
+          config: helper.ontouch(() => { socket.send('resign-force'); })
         }, i18n('forceResignation')),
         m('button.binary_choice.right', {
-          config: helper.ontouch(function() { socket.send('draw-force'); })
+          config: helper.ontouch(() => { socket.send('draw-force'); })
         }, i18n('forceDraw'))
       ]) : null;
   },
@@ -84,7 +101,7 @@ export default {
       m('div.notice', i18n('threefoldRepetition')),
       m.trust('&nbsp;'),
       m('button[data-icon=E]', {
-        config: helper.ontouch(function() { socket.send('draw-claim'); })
+        config: helper.ontouch(() => { socket.send('draw-claim'); })
       }, i18n('claimADraw'))
     ]) : null;
   },
@@ -94,9 +111,10 @@ export default {
     }, [
       m('div.notice', i18n('drawOfferSent')),
       m('button[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('draw-no'); })
+        config: helper.ontouch(() => { socket.send('draw-no'); })
       }, i18n('cancel'))
     ]);
+    return null;
   },
   answerOpponentDrawOffer: function(ctrl) {
     if (ctrl.data.opponent.offeringDraw) return m('div.negotiation.clearfix', {
@@ -104,12 +122,13 @@ export default {
     }, [
       m('div.notice', i18n('yourOpponentOffersADraw')),
       m('button.binary_choice[data-icon=E]', {
-        config: helper.ontouch(function() { socket.send('draw-yes'); })
+        config: helper.ontouch(() => { socket.send('draw-yes'); })
       }, i18n('accept')),
       m('button.binary_choice[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('draw-no'); })
+        config: helper.ontouch(() => { socket.send('draw-no'); })
       }, i18n('decline'))
     ]);
+    return null;
   },
   cancelTakebackProposition: function(ctrl) {
     if (ctrl.data.player.proposingTakeback) return m('div.negotiation', {
@@ -117,9 +136,10 @@ export default {
     }, [
       m('div.notice', i18n('takebackPropositionSent')),
       m('button[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('takeback-no'); })
+        config: helper.ontouch(() => { socket.send('takeback-no'); })
       }, i18n('cancel'))
     ]);
+    return null;
   },
   answerOpponentTakebackProposition: function(ctrl) {
     if (ctrl.data.opponent.proposingTakeback) return m('div.negotiation.clearfix', {
@@ -127,12 +147,13 @@ export default {
     }, [
       m('div.notice', i18n('yourOpponentProposesATakeback')),
       m('button.binary_choice[data-icon=E]', {
-        config: helper.ontouch(function() { socket.send('takeback-yes'); })
+        config: helper.ontouch(() => { socket.send('takeback-yes'); })
       }, i18n('accept')),
       m('button.binary_choice[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('takeback-no'); })
+        config: helper.ontouch(() => { socket.send('takeback-no'); })
       }, i18n('decline'))
     ]);
+    return null;
   },
   analysisBoard: function(ctrl) {
     const d = ctrl.data;
@@ -140,10 +161,11 @@ export default {
       return m('button', {
         config: helper.ontouch(() => {
           socket.send('rematch-no');
-          m.route(`/analyse/online/${d.game.id}/${analysisBoardOrientation(d)}`);
+          m.route(`/analyse/online/${d.game.id}/${boardOrientation(d)}`);
         })
-      }, [m('span.fa.fa-eye'), i18n('analysis')]);
+      }, [m('span[data-icon=A].withIcon'), i18n('analysis')]);
     }
+    return null;
   },
   newOpponent: function(ctrl) {
     const d = ctrl.data;
@@ -156,14 +178,15 @@ export default {
         })
       }, i18n('newOpponent'));
     }
+    return null;
   },
   rematch: function(ctrl) {
     const d = ctrl.data;
-    const rematchable = !d.game.rematch && (gameStatus.finished(d) || gameStatus.aborted(d)) && !d.tournament && !d.simul && !d.game.boosted && (d.opponent.onGame || (!d.game.clock && d.player.user && d.opponent.user));
+    const rematchable = !d.game.rematch && (gameStatus.finished(d) || gameStatus.aborted(d)) && !d.game.tournamentId && !d.simul && !d.game.boosted && (d.opponent.onGame || (!d.game.clock && d.player.user && d.opponent.user));
     if (!ctrl.data.opponent.offeringRematch && !ctrl.data.player.offeringRematch && rematchable) {
       return m('button', {
         key: 'rematch',
-        config: helper.ontouch(function() { socket.send('rematch-yes'); })
+        config: helper.ontouch(() => { socket.send('rematch-yes'); })
       }, [m('span.fa.fa-refresh'), i18n('rematch')]);
     } else {
       return null;
@@ -175,12 +198,13 @@ export default {
     }, [
       m('div.notice', i18n('yourOpponentWantsToPlayANewGameWithYou')),
       m('button.binary_choice[data-icon=E]', {
-        config: helper.ontouch(function() { socket.send('rematch-yes'); })
+        config: helper.ontouch(() => { socket.send('rematch-yes'); })
       }, i18n('joinTheGame')),
       m('button.binary_choice[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('rematch-no'); })
+        config: helper.ontouch(() => { socket.send('rematch-no'); })
       }, i18n('declineInvitation'))
     ]);
+    return null;
   },
   cancelRematch: function(ctrl) {
     if (ctrl.data.player.offeringRematch) return m('div.negotiation', {
@@ -189,15 +213,17 @@ export default {
       m('div.notice', i18n('rematchOfferSent')),
       m('div.notice', i18n('waitingForOpponent')),
       m('button[data-icon=L]', {
-        config: helper.ontouch(function() { socket.send('rematch-no'); })
+        config: helper.ontouch(() => { socket.send('rematch-no'); })
       }, i18n('cancelRematchOffer'))
     ]);
+    return null;
   },
   moretime: function(ctrl) {
     if (gameApi.moretimeable(ctrl.data)) return m('button[data-icon=O]', {
       key: 'moretime',
-      config: helper.ontouch(throttle(function() { socket.send('moretime'); }, 600))
+      config: helper.ontouch(throttle(() => { socket.send('moretime'); }, 600))
     }, i18n('giveNbSeconds', 15));
+    return null;
   },
   flipBoard: function(ctrl) {
     const className = helper.classSet({
@@ -272,6 +298,45 @@ export default {
           ctrl.notes.open,
           () => window.plugins.toast.show(i18n('notes'), 'short', 'bottom')
         )} />
+    );
+  },
+  returnToTournament: function(ctrl) {
+    function handler() {
+      ctrl.hideActions();
+      m.route('/tournament/' + ctrl.data.game.tournamentId, null, true);
+    }
+    return (
+      <button key="returnToTournament" config={helper.ontouch(handler)}>
+        <span className="fa fa-trophy" />
+        {i18n('backToTournament')}
+      </button>
+    );
+  },
+  withdrawFromTournament: function(ctrl) {
+    function handler() {
+      ctrl.hideActions();
+      tournamentXhr.withdraw(ctrl.data.game.tournamentId);
+      m.route('/tournament/' + ctrl.data.game.tournamentId);
+    }
+    return (
+      <button key="withdrawFromTournament" config={helper.ontouch(handler)}>
+        <span className="fa fa-flag" />
+        {i18n('withdraw')}
+      </button>
+    );
+  },
+  goBerserk: function(ctrl) {
+    if (!gameApi.berserkableBy(ctrl.data)) return null;
+    if (ctrl.vm.goneBerserk[ctrl.data.player.color]) return null;
+    function handler() {
+      ctrl.hideActions();
+      ctrl.goBerserk();
+    }
+    return (
+      <button className="berserk" key="goBerserk" config={helper.ontouch(handler)}>
+        <span data-icon="`" /> GO BERSERK!<br/>
+        <small>Half the time, bonus point</small>
+      </button>
     );
   }
 };

@@ -1,58 +1,12 @@
 import chessground from 'chessground-mobile';
 import gameApi from '../../lichess/game';
 import settings from '../../settings';
-import helper from '../helper';
+import { boardOrientation } from '../../utils';
+import m from 'mithril';
 
-function str2move(m) {
-  return m ? [m.slice(0, 2), m.slice(2, 4)] : null;
+function str2move(move) {
+  return move ? [move.slice(0, 2), move.slice(2, 4)] : null;
 }
-
-function boardOrientation(data, flip) {
-  if (data.game.variant.key === 'racingKings') {
-    return flip ? 'black' : 'white';
-  } else {
-    return flip ? data.opponent.color : data.player.color;
-  }
-}
-
-function getBounds(isPortrait) {
-  const { vh, vw } = helper.viewportDim();
-  const top = 50;
-
-  if (isPortrait) {
-    const contentHeight = vh - 50;
-    const pTop = 50 + ((contentHeight - vw - 40) / 2);
-    return {
-      top: pTop,
-      right: vw,
-      bottom: pTop + vw,
-      left: 0,
-      width: vw,
-      height: vw
-    };
-  } else if (helper.isVeryWideScreen()) {
-    const wsSide = vh - top - (vh * 0.88);
-    return {
-      top,
-      right: wsSide,
-      bottom: top + wsSide,
-      left: 0,
-      width: wsSide,
-      height: wsSide
-    };
-  } else {
-    const lSide = vh - top;
-    return {
-      top,
-      right: lSide,
-      bottom: top + lSide,
-      left: 0,
-      width: lSide,
-      height: lSide
-    };
-  }
-}
-
 
 function makeConfig(data, fen, flip) {
   return {
@@ -65,8 +19,7 @@ function makeConfig(data, fen, flip) {
     autoCastle: data.game.variant.key === 'standard',
     highlight: {
       lastMove: settings.game.highlights(),
-      check: settings.game.highlights(),
-      dragOver: false
+      check: settings.game.highlights()
     },
     movable: {
       free: false,
@@ -81,7 +34,11 @@ function makeConfig(data, fen, flip) {
     premovable: {
       enabled: data.pref.enablePremove,
       showDests: settings.game.pieceDestinations(),
-      castle: data.game.variant.key !== 'antichess'
+      castle: data.game.variant.key !== 'antichess',
+      events: {
+        set: () => m.redraw(),
+        unset: m.redraw
+      }
     },
     draggable: {
       distance: 3,
@@ -136,12 +93,10 @@ function end(ground) {
   ground.stop();
 }
 
-module.exports = {
+export default {
   make,
   reload,
   promote,
   end,
-  applySettings,
-  boardOrientation,
-  getBounds
+  applySettings
 };

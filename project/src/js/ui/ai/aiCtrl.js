@@ -4,6 +4,7 @@ import ground from '../shared/offlineRound/ground';
 import makeData from '../shared/offlineRound/data';
 import { setResult } from '../shared/offlineRound';
 import sound from '../../sound';
+import vibrate from '../../vibrate';
 import replayCtrl from '../shared/offlineRound/replayCtrl';
 import storage from '../../storage';
 import settings from '../../settings';
@@ -11,7 +12,7 @@ import actions from './actions';
 import engineCtrl from './engine';
 import helper from '../helper';
 import newGameMenu from './newAiGame';
-import { askWorker, getRandomArbitrary, oppositeColor } from '../../utils';
+import { askWorker, getRandomArbitrary, oppositeColor, aiName } from '../../utils';
 import { setCurrentAIGame, getCurrentAIGame } from '../../utils/offlineGames';
 import i18n from '../../i18n';
 import socket from '../../socket';
@@ -27,8 +28,8 @@ export default function controller() {
 
   const chessWorker = new Worker('vendor/scalachessjs.js');
   const engine = engineCtrl(this);
-  this.actions = new actions.controller(this);
-  this.newGameMenu = new newGameMenu.controller(this);
+  this.actions = actions.controller(this);
+  this.newGameMenu = newGameMenu.controller(this);
 
   this.vm = {
     engineSearching: false
@@ -46,6 +47,10 @@ export default function controller() {
     this.replay.addMove(orig, dest, promotionRole);
   }.bind(this);
 
+  this.playerName = function() {
+    return i18n(this.data.player.color);
+  }.bind(this);
+
   this.getOpponent = function() {
     const level = settings.ai.opponent();
     const name = settings.ai.availableOpponents.find(e => e[1] === level)[0];
@@ -61,14 +66,17 @@ export default function controller() {
     this.vm.engineSearching = false;
     this.chessground.apiMove(from, to);
     addMove(from, to);
+    m.redraw();
   };
 
   const engineMove = function () {
     this.vm.engineSearching = true;
     const sit = this.replay.situation();
     setTimeout(() => {
-      engine.setLevel(this.getOpponent().level);
-      engine.search(this.data.game.initialFen, sit.uciMoves.join(' '));
+      const l = this.getOpponent().level;
+      this.data.opponent.username = aiName(l);
+      engine.setLevel(l)
+      .then(() => engine.search(this.data.game.initialFen, sit.uciMoves.join(' ')));
     }, 500);
   }.bind(this);
 
@@ -88,10 +96,10 @@ export default function controller() {
   }.bind(this);
 
   const onMove = function(orig, dest, capturedPiece) {
-    if (!capturedPiece)
-      sound.move();
-    else
-      sound.capture();
+    if (!capturedPiece) sound.move();
+    else sound.capture();
+
+    vibrate.quick();
   };
 
   this.onReplayAdded = function() {
@@ -101,7 +109,6 @@ export default function controller() {
       this.onGameEnd();
     } else if (isEngineToMove()) {
       engineMove();
-      m.redraw();
     }
     this.save();
     m.redraw();
@@ -141,10 +148,12 @@ export default function controller() {
     }
     this.replay.apply();
 
-    engine.prepare(this.data.game.variant.key);
-    if (isEngineToMove()) {
-      engineMove();
-    }
+    engine.prepare(this.data.game.variant.key)
+    .then(() => {
+      if (isEngineToMove()) {
+        engineMove();
+      }
+    });
 
     m.redraw();
   }.bind(this);
@@ -180,11 +189,19 @@ export default function controller() {
   }.bind(this);
 
   this.forward = function() {
-    this.jump(this.replay.ply + 2);
+    const ply = this.replay.ply;
+    this.jump(ply + (ply + 2 >= this.replay.situations.length ? 1 : 2));
   }.bind(this);
 
   this.backward = function() {
-    this.jump(this.replay.ply - 2);
+    const ply = this.replay.ply;
+    if (this.data.player.color === 'black') {
+      const offset = ply % 2 === 0 ? 1 : 2;
+      this.jump(ply - offset);
+    } else {
+      const offset = ply % 2 === 0 ? 2 : 1;
+      this.jump(ply - offset);
+    }
   }.bind(this);
 
   this.firstPly = function () {
@@ -194,16 +211,17 @@ export default function controller() {
   const saved = getCurrentAIGame();
   const setupFen = storage.get(storageFenKey);
 
-  engine.init(() => {
-    if (saved) {
+  engine.init()
+  .then(() => {
+    if (setupFen) {
+      this.startNewGame(setupFen);
+    } else if (saved) {
       try {
         this.init(saved.data, saved.situations, saved.ply);
       } catch (e) {
         console.log(e, 'Fail to load saved game');
         this.startNewGame();
       }
-    } else if (setupFen) {
-      this.startNewGame(setupFen);
     } else {
       this.startNewGame();
     }
@@ -216,7 +234,7 @@ export default function controller() {
     if (this.chessground) {
       this.chessground.onunload();
     }
-    chessWorker.terminate();
+    if (chessWorker) chessWorker.terminate();
     engine.exit();
   };
 }

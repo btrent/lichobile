@@ -13,11 +13,13 @@ export function getAnalyseData(data) {
     return {
       fen: o.fen,
       ply: o.ply,
+      checkCount: o.checkCount,
       san: o.pgnMoves.length ? o.pgnMoves[o.pgnMoves.length - 1] : null,
       uci: o.uciMoves.length ? o.uciMoves[o.uciMoves.length - 1] : null,
       dests: o.dests
     };
   });
+  data.data.endSituation = data.situations[data.situations.length - 1];
   return data.data;
 }
 

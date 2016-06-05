@@ -1,6 +1,7 @@
 import gameStatus from './status';
 import { secondsToMinutes } from '../utils';
 import settings from '../settings';
+import getVariant from './variant';
 import i18n from '../i18n';
 
 function parsePossibleMoves(possibleMoves) {
@@ -54,6 +55,13 @@ function drawable(data) {
   return playable(data) && data.game.turns >= 2 && !data.player.offeringDraw && !data.opponent.ai && !data.opponent.offeringDraw;
 }
 
+function berserkableBy(data) {
+  return data.tournament &&
+    data.tournament.berserkable &&
+    isPlayerPlaying(data) &&
+    playedTurns(data) < 2;
+}
+
 function resignable(data) {
   return playable(data) && !abortable(data);
 }
@@ -66,8 +74,12 @@ function moretimeable(data) {
   return data.clock && isPlayerPlaying(data) && !mandatory(data);
 }
 
+function imported(data) {
+  return data.game.source === 'import';
+}
+
 function replayable(data) {
-  return data.game.variant.key === 'standard' && gameStatus.finished(data);
+  return imported(data) || gameStatus.finished(data);
 }
 
 function userAnalysable(data) {
@@ -125,8 +137,11 @@ function time(data) {
 }
 
 function title(data) {
-  const mode = data.game.rated ? i18n('rated') : i18n('casual');
-  return `${time(data)} • ${data.game.variant.name} • ${mode}`;
+  const mode = data.game.offline ? i18n('offline') :
+    data.game.rated ? i18n('rated') : i18n('casual');
+  const variant = getVariant(data.game.variant.key);
+  const name = variant ? (variant.tinyName || variant.shortName || variant.name) : '?';
+  return `${time(data)} • ${name} • ${mode}`;
 }
 
 function publicUrl(data) {
@@ -145,6 +160,7 @@ export default {
   abortable,
   takebackable,
   drawable,
+  berserkableBy,
   resignable,
   forceResignable,
   moretimeable,

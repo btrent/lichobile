@@ -1,9 +1,9 @@
 import layout from '../layout';
 import i18n from '../../i18n';
 import { header, connectingHeader, viewOnlyBoardContent } from '../shared/common';
+import Board from '../shared/Board';
 import { view as renderPromotion } from '../shared/offlineRound/promotion';
 import helper from '../helper';
-import { renderBoard } from '../round/view/roundView';
 import menu, { renderUserInfos, renderSigninBox } from './menu';
 import m from 'mithril';
 
@@ -24,16 +24,21 @@ export default function view(ctrl) {
 function renderContent(ctrl) {
   if (!ctrl.data) return viewOnlyBoardContent();
 
-  if (helper.isPortrait())
+  const board = Board(
+    ctrl.data,
+    ctrl.chessground
+  );
+
+  if (helper.isPortrait()) {
     return [
       ctrl.data.mode === 'view' ? renderProblemDetails(ctrl) : renderExplanation(ctrl),
-      renderBoard(ctrl.data, ctrl.chessground),
+      board,
       ctrl.data.mode === 'view' ? renderViewTable(ctrl) : renderPlayerTable(ctrl),
       renderActionsBar(ctrl)
     ];
-  else
+  } else {
     return [
-      renderBoard(ctrl.data, ctrl.chessground),
+      board,
       <section key="table" className="table">
         <section className="trainingTable">
           {ctrl.data.mode === 'view' ? renderProblemDetails(ctrl) : renderExplanation(ctrl)}
@@ -45,6 +50,7 @@ function renderContent(ctrl) {
         {renderActionsBar(ctrl)}
       </section>
     ];
+  }
 }
 
 function renderExplanation(ctrl) {

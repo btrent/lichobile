@@ -21,7 +21,7 @@ export default {
 
     var checkUnreadFromStorage = function() {
       var nbMessages = storage.get(storageId);
-      if (nbMessages < this.messages.length) this.unread = true;
+      if (this.messages && nbMessages < this.messages.length) this.unread = true;
     }.bind(this);
 
     checkUnreadFromStorage();
@@ -34,12 +34,15 @@ export default {
 
     this.close = function(fromBB) {
       window.cordova.plugins.Keyboard.close();
-      if(fromBB !== 'backbutton' && this.showing) backbutton.stack.pop();
+      if (fromBB !== 'backbutton' && this.showing) backbutton.stack.pop();
       this.showing = false;
       this.unread = false;
     }.bind(this);
 
     this.onReload = function(messages) {
+      if (!messages) {
+        return;
+      }
       this.messages = messages;
       checkUnreadFromStorage();
       storage.set(storageId, this.messages.length);
@@ -94,7 +97,9 @@ export default {
       ]),
       m('div.modal_content', [
         m('div#chat_scroller.native_scroller', {
-          config: el => el.scrollTop = el.scrollHeight
+          config: el => {
+            el.scrollTop = el.scrollHeight;
+          }
         }, [
           m('ul.chat_messages', ctrl.messages.map(function(msg, i, all) {
             var player = ctrl.root.data.player;
@@ -147,19 +152,20 @@ export default {
           )}, "nice")
 	],
         m('form.chat_form', {
-          onsubmit: function(e) {
+          onsubmit: e => {
             e.preventDefault();
-            var msg = e.target[0].value.trim();
-            if (!msg) return false;
+            const msg = e.target[0].value.trim();
+            if (!msg) return;
             if (msg.length > 140) {
-              return false;
+              return;
             }
             ctrl.inputValue = '';
             socket.send('talk', msg);
           }
-        }, 
-	[
-          m('input#chat_input.chat_input[type=text][placeholder=' + i18n('talkInChat') + ']', {
+        }, [
+          m('input#chat_input.chat_input[type=text]', {
+            placeholder: i18n('talkInChat'),
+            autocomplete: 'off',
             value: ctrl.inputValue,
             config: function(el, isUpdate) {
               if (!isUpdate) {

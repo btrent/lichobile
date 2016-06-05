@@ -4,7 +4,7 @@ import formWidgets from '../shared/form';
 import layout from '../layout';
 import i18n from '../../i18n';
 import settings from '../../settings';
-import { onBoardThemeChange } from '../round/view/roundView';
+import { onBoardThemeChange } from '../shared/Board';
 import m from 'mithril';
 
 function renderBody() {
@@ -29,7 +29,7 @@ function renderBody() {
   ];
 }
 
-module.exports = {
+export default {
   controller: function() {},
 
   view: function() {

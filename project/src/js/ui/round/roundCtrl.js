@@ -1,7 +1,8 @@
 import throttle from 'lodash/throttle';
-import data from './data';
+import makeData from './data';
 import * as utils from '../../utils';
 import sound from '../../sound';
+import vibrate from '../../vibrate';
 import gameApi from '../../lichess/game';
 import ground from './ground';
 import promotion from './promotion';
@@ -18,13 +19,13 @@ import socketHandler from './socketHandler';
 import atomic from './atomic';
 import backbutton from '../../backbutton';
 import * as xhr from './roundXhr';
-import { toggleGameBookmark } from '../../xhr';
-import { hasNetwork, saveOfflineGameData } from '../../utils';
+import { miniUser as miniUserXhr, toggleGameBookmark } from '../../xhr';
+import { hasNetwork, saveOfflineGameData, boardOrientation } from '../../utils';
 import m from 'mithril';
 
 export default function controller(cfg, onFeatured, onTVChannelChange, userTv, onUserTVRedirect) {
 
-  this.data = data(cfg);
+  this.data = makeData(cfg);
 
   this.onTVChannelChange = onTVChannelChange;
 
@@ -42,15 +43,48 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
 
   this.vm = {
     flip: false,
+    miniUser: {
+      player: {
+        showing: false,
+        data: m.prop(null)
+      },
+      opponent: {
+        showing: false,
+        data: m.prop(null)
+      }
+    },
     showingActions: false,
+    confirmResign: false,
+    goneBerserk: {},
     headerHash: '',
     replayHash: '',
     buttonsHash: '',
     playerHash: '',
     opponentHash: '',
     ply: this.lastPly(),
-    moveToSubmit: null
+    moveToSubmit: null,
+    tClockEl: null
   };
+  this.vm.goneBerserk[this.data.player.color] = this.data.player.berserk;
+  this.vm.goneBerserk[this.data.opponent.color] = this.data.opponent.berserk;
+
+  let tournamentCountInterval;
+  const tournamentTick = function() {
+    if (this.data.tournament.secondsToFinish > 0) {
+      this.data.tournament.secondsToFinish--;
+      if (this.vm.tClockEl) {
+        this.vm.tClockEl.textContent =
+          utils.formatTournamentCountdown(this.data.tournament.secondsToFinish) +
+        ' • ';
+      }
+    } else {
+      clearInterval(tournamentCountInterval);
+    }
+  }.bind(this);
+
+  if (this.data.tournament) {
+    tournamentCountInterval = setInterval(tournamentTick, 1000);
+  }
 
   const connectSocket = function() {
     if (utils.hasNetwork()) {
@@ -77,6 +111,13 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     return h;
   };
 
+  this.toggleUserPopup = function(position, userId) {
+    if (!this.vm.miniUser[position].data()) {
+      this.vm.miniUser[position].data = miniUserXhr(userId);
+    }
+    this.vm.miniUser[position].showing = !this.vm.miniUser[position].showing;
+  }.bind(this);
+
   this.showActions = function() {
     backbutton.stack.push(this.hideActions);
     this.vm.showingActions = true;
@@ -99,7 +140,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     }
     this.vm.flip = !this.vm.flip;
     this.chessground.set({
-      orientation: ground.boardOrientation(this.data, this.vm.flip)
+      orientation: boardOrientation(this.data, this.vm.flip)
     });
   }.bind(this);
 
@@ -223,8 +264,16 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
         atomic.capture(this.chessground, dest);
         sound.explosion();
       }
-      else sound.capture();
-    } else sound.move();
+      else {
+        sound.capture();
+      }
+    } else {
+      sound.move();
+    }
+
+    if (!this.data.player.spectator) {
+      vibrate.quick();
+    }
   }.bind(this);
 
   this.apiMove = function(o) {
@@ -232,9 +281,21 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     d.game.turns = o.ply;
     d.game.player = o.ply % 2 === 0 ? 'white' : 'black';
     const playedColor = o.ply % 2 === 0 ? 'black' : 'white';
-    if (o.status) d.game.status = o.status;
-    d[d.player.color === 'white' ? 'player' : 'opponent'].offeringDraw = o.wDraw;
-    d[d.player.color === 'black' ? 'player' : 'opponent'].offeringDraw = o.bDraw;
+    if (o.status) {
+      d.game.status = o.status;
+    }
+    var wDraw = d[d.player.color === 'white' ? 'player' : 'opponent'].offeringDraw;
+    var bDraw = d[d.player.color === 'black' ? 'player' : 'opponent'].offeringDraw;
+    if (!wDraw && o.wDraw) {
+      sound.dong();
+      vibrate.quick();
+    }
+    if (!bDraw && o.bDraw) {
+      sound.dong();
+      vibrate.quick();
+    }
+    wDraw = o.wDraw;
+    bDraw = o.bDraw;
     d.possibleMoves = d.player.color === d.game.player ? o.dests : null;
     this.setTitle();
 
@@ -317,6 +378,19 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
 
   }.bind(this);
 
+  const throttledBerserk = throttle(() => socket.send('berserk'), 500);
+  this.goBerserk = function() {
+    throttledBerserk();
+    sound.berserk();
+  };
+
+  this.setBerserk = function(color) {
+    if (this.vm.goneBerserk[color]) return;
+    this.vm.goneBerserk[color] = true;
+    if (color !== this.data.player.color) sound.berserk();
+    m.redraw();
+  }.bind(this);
+
   this.chessground = ground.make(this.data, cfg.game.fen, userMove, onMove);
 
   this.clock = this.data.clock ? new clockCtrl(
@@ -354,7 +428,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
   if (this.clock) clockIntervId = setInterval(this.clockTick, 100);
   else if (this.correspondenceClock) clockIntervId = setInterval(correspondenceClockTick, 6000);
 
-  this.chat = (this.data.opponent.ai || this.data.player.spectator) ?
+  this.chat = (session.isKidMode() || this.data.game.tournamentId || this.data.opponent.ai || this.data.player.spectator) ?
     null : new chat.controller(this);
 
   this.notes = this.data.game.speed === 'correspondence' ? new notes.controller(this) : null;
@@ -365,7 +439,9 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
     if (this.chat) this.chat.onReload(rCfg.chat);
     if (this.data.tv) rCfg.tv = this.data.tv;
     if (this.data.userTV) rCfg.userTV = this.data.userTV;
-    this.data = data(rCfg);
+
+    this.data = makeData(rCfg);
+
     makeCorrespondenceClock();
     if (this.clock) this.clock.update(this.data.clock.white, this.data.clock.black);
     this.setTitle();
@@ -392,6 +468,7 @@ export default function controller(cfg, onFeatured, onTVChannelChange, userTv, o
   this.onunload = function() {
     socket.destroy();
     clearInterval(clockIntervId);
+    clearInterval(tournamentCountInterval);
     document.removeEventListener('resume', reloadGameData);
     window.removeEventListener('resize', onResize);
     window.plugins.insomnia.allowSleepAgain();

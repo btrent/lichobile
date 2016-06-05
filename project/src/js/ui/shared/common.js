@@ -6,12 +6,14 @@ import newGameForm from '../newGameForm';
 import settings from '../../settings';
 import session from '../../session';
 import challengesApi from '../../lichess/challenges';
-import timeline from '../../lichess/timeline';
 import friendsApi from '../../lichess/friends';
 import i18n from '../../i18n';
+import popupWidget from './popup';
+import { getLanguageNativeName } from '../../utils/langs';
 import friendsPopup from '../friendsPopup';
-import timelineModal from '../timelineModal';
 import m from 'mithril';
+import spinner from '../../spinner';
+import countries from '../../utils/countries';
 import ViewOnlyBoard from './ViewOnlyBoard';
 
 export function menuButton() {
@@ -26,18 +28,6 @@ export function backButton(title) {
     <button key="default-history-backbutton" className="back_button main_header_button" config={helper.ontouch(utils.backHistory)}>
       <span className="fa fa-arrow-left"/>
       {title ? <div className="title">{title}</div> : null }
-    </button>
-  );
-}
-
-export function timelineButton() {
-  const unreadCount = timeline.unreadCount();
-  const longAction = () => window.plugins.toast.show(i18n('timline'), 'short', 'top');
-  return (
-    <button className="main_header_button timeline_button fa fa-bell" key="timeline"
-      config={helper.ontouch(timelineModal.open, longAction)}
-    >
-      <span className="chip nb_timeline">{unreadCount}</span>
     </button>
   );
 }
@@ -92,17 +82,20 @@ export function gamesButton() {
 }
 
 export function headerBtns() {
-  if (utils.hasNetwork() && session.isConnected() && friendsApi.count()
-    && timeline.unreadCount()) {
+  if (utils.hasNetwork() && session.isConnected() && friendsApi.count()) {
     return (
       <div key="buttons" className="buttons">
-        {timelineButton()}
         {friendsButton()}
         {gamesButton()}
       </div>
     );
-  }
-  else if (utils.hasNetwork() && session.isConnected() && friendsApi.count()) {
+  } else if (utils.hasNetwork() && session.isConnected()) {
+    return (
+      <div key="buttons" className="buttons">
+        {gamesButton()}
+      </div>
+    );
+  } else if (utils.hasNetwork() && session.isConnected() && friendsApi.count()) {
     return (
       <div key="buttons" className="buttons">
         {friendsButton()}
@@ -179,12 +172,6 @@ export function empty() {
   return [];
 }
 
-export function pad(num, size) {
-    var s = num + '';
-    while (s.length < size) s = '0' + s;
-    return s;
-}
-
 export function userStatus(user) {
   const status = user.online ? 'online' : 'offline';
   return (
@@ -192,5 +179,66 @@ export function userStatus(user) {
       <span className={'userStatus ' + status} data-icon="r" />
       {user.username}
     </div>
+  );
+}
+
+export function miniUser(user, mini, isOpen, close) {
+  if (!user) return null;
+
+  const status = user.online ? 'online' : 'offline';
+
+  function content() {
+    if (!mini) {
+      return (
+        <div className="miniUser">
+          {spinner.getVdom()}
+        </div>
+      );
+    }
+    const sessionUserId = session.get() && session.get().id;
+    return (
+      <div className="miniUser">
+        <div className="title">
+          <div className="username" config={helper.ontouch(() => m.route(`/@/${user.username}`))}>
+            <span className={'userStatus withIcon ' + status} data-icon="r" />
+            {i18n(user.username)}
+          </div>
+          { user.profile && user.profile.country ?
+            <p className="country">
+              <img className="flag" src={'images/flags/' + user.profile.country + '.png'} />
+              {countries[user.profile.country]}
+            </p> : user.language ?
+              <p className="language">
+                <span className="fa fa-comment-o" />
+                {getLanguageNativeName(user.language)}
+              </p> : null
+          }
+        </div>
+        <div className="mini_perfs">
+          {Object.keys(mini.perfs).map(p => {
+            const perf = mini.perfs[p];
+            return (
+              <div className="perf">
+                <span data-icon={utils.gameIcon(p)} />
+                {perf.games > 0 ? perf.rating + (perf.prov ? '?' : '') : '-'}
+              </div>
+            );
+          })}
+        </div>
+        { mini.crosstable && mini.crosstable.nbGames > 0 ?
+          <div className="yourScore">
+            Your score: <span className="score">{`${mini.crosstable.users[sessionUserId]} - ${mini.crosstable.users[user.id]}`}</span>
+          </div> : null
+        }
+      </div>
+    );
+  }
+
+  return popupWidget(
+    'miniUserInfos',
+    null,
+    content,
+    isOpen,
+    close
   );
 }

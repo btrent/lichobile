@@ -1,5 +1,6 @@
 import helper from './ui/helper';
 import home from './ui/home';
+import timeline from './ui/timeline';
 import game from './ui/game';
 import analyse from './ui/analyse';
 import challenge from './ui/challenge';
@@ -8,8 +9,9 @@ import correspondence from './ui/correspondence';
 import otb from './ui/otb';
 import ai from './ui/ai';
 import settingsUi from './ui/settings';
-import settingsNotifications from './ui/settings/notifications';
+import settingsSoundNotifications from './ui/settings/soundNotifications';
 import settingsLang from './ui/settings/lang';
+import settingsKidMode from './ui/settings/kid';
 import settingsPreferences from './ui/settings/preferences';
 import settingsGameDisplay from './ui/settings/gameDisplay';
 import settingsGameBehavior from './ui/settings/gameBehavior';
@@ -25,7 +27,7 @@ import userTV from './ui/user/tv';
 import players from './ui/players';
 import ranking from './ui/players/ranking';
 import training from './ui/training';
-import tournamentList from './ui/tournament/list';
+import tournamentDetail from './ui/tournament/detail';
 import tournament from './ui/tournament';
 import editor from './ui/editor';
 import m from 'mithril';
@@ -37,6 +39,7 @@ export default {
   init() {
     m.route(document.body, '/', {
       '/': fadingPage(home),
+      '/timeline': slidingPage(timeline),
       '/otb': otb,
       '/ai': ai,
       '/game/:id': game,
@@ -63,15 +66,17 @@ export default {
       '/settings/preferences': slidingPage(settingsPreferences),
       '/settings/gameDisplay': slidingPage(settingsGameDisplay),
       '/settings/gameBehavior': slidingPage(settingsGameBehavior),
-      '/settings/notifications': slidingPage(settingsNotifications),
+      '/settings/soundNotifications': slidingPage(settingsSoundNotifications),
       '/settings/privacy': slidingPage(settingsPrivacy),
       '/settings/themes/board': slidingPage(boardThemes),
       '/settings/themes/piece': slidingPage(pieceThemes),
       '/settings/lang': slidingPage(settingsLang),
+      '/settings/kidMode': slidingPage(settingsKidMode),
       '/training': fadingPage(training),
       '/training/:id': fadingPage(training),
-      '/tournament': fadingPage(tournamentList),
-      '/tournament/:id': fadingPage(tournament)
+      '/tournament': fadingPage(tournament),
+      '/tournament/:id': fadingPage(tournamentDetail),
+      '/tournament/:tournamentId/game/:id': fadingPage(game)
     });
   }
 };

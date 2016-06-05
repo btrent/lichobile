@@ -13,15 +13,13 @@ import { loadPreferredLanguage } from './i18n';
 import settings from './settings';
 import { status as xhrStatus, setServerLang } from './xhr';
 import challengesApi from './lichess/challenges';
-import timeline from './lichess/timeline';
 import helper from './ui/helper';
 import backbutton from './backbutton';
 import socket from './socket';
 import push from './push';
 import routes from './routes';
 import deepLinks from './deepLinks';
-
-var triedToLogin = false;
+import { isForeground, setForeground, setBackground } from './utils/appMode';
 
 function main() {
 
@@ -35,9 +33,6 @@ function main() {
   window.shouldRotateToOrientation = function() {
     return true;
   };
-
-  // init timeline last read to avoid reading too much localstorage
-  timeline.setLastRead(timeline.getSavedLastRead());
 
   // pull session data once (to log in user automatically thanks to cookie)
   // and also listen to online event in case network was disconnected at app
@@ -64,7 +59,10 @@ function main() {
 
   if (window.lichess.gaId) window.analytics.startTrackerWithId(window.lichess.gaId);
 
-  // leave time to the screen to render fully
+  if (cordova.platformId === 'android') {
+      window.StatusBar.backgroundColorByHexString('#151A1E');
+  }
+
   setTimeout(function() {
     window.navigator.splashscreen.hide();
     xhrStatus();
@@ -72,48 +70,36 @@ function main() {
 }
 
 function onResize() {
-  helper.cachedViewportDim = null;
+  helper.clearCachedViewportDim();
   m.redraw();
 }
 
 function onOnline() {
-  session.rememberLogin().then(() => {
-    // load timeline
-    timeline.refresh();
-    // load challenges
-    challengesApi.refresh();
-    // first time login on app start or just try to reconnect socket
-    if (!triedToLogin) {
-      triedToLogin = true;
-    } else {
-      socket.connect();
-    }
-  }, err => {
-    if (!triedToLogin) {
-      // means user is anonymous here
-      if (err.status === 401) {
-        triedToLogin = true;
-      }
-    }
-  })
-  .then(m.redraw)
-  .then(push.register)
-  .then(() => setServerLang(settings.general.lang()));
+  if (isForeground()) {
+    session.rememberLogin()
+    .then(() => {
+      push.register();
+      challengesApi.refresh();
+      m.redraw();
+    })
+    .then(() => setServerLang(settings.general.lang()));
+  }
 }
 
 function onOffline() {
-  socket.disconnect();
-  m.redraw();
+  if (isForeground()) {
+    socket.disconnect();
+    m.redraw();
+  }
 }
 
 function onResume() {
+  setForeground();
   socket.connect();
-  timeline.refresh().then(v => {
-    if (v) m.redraw();
-  });
 }
 
 function onPause() {
+  setBackground();
   socket.disconnect();
 }
 

@@ -6,7 +6,7 @@ import gameStatusApi from '../../../lichess/status';
 import { renderMaterial } from '../../round/view/roundView';
 import m from 'mithril';
 
-export function renderAntagonist(ctrl, content, material, position, isPortrait, isVWS) {
+export function renderAntagonist(ctrl, content, material, position, isPortrait) {
   const key = isPortrait ? position + '-portrait' : position + '-landscape';
 
   const antagonistColor = ctrl.data[position].color;
@@ -14,7 +14,9 @@ export function renderAntagonist(ctrl, content, material, position, isPortrait, 
   return (
     <section className={'playTable ' + position} key={key}>
       <div key="infos" className="antagonistInfos offline">
-        <div>{content}</div>
+        <div>
+          {content}
+        </div>
         <div className="ratingAndMaterial">
           {ctrl.data.game.variant.key === 'horde' ? null : renderMaterial(material)}
           { ctrl.data.game.variant.key === 'threeCheck' ?
@@ -22,12 +24,6 @@ export function renderAntagonist(ctrl, content, material, position, isPortrait, 
           }
         </div>
       </div>
-      { !isVWS && position === 'opponent' && ctrl.vm && ctrl.vm.engineSearching ?
-        <div key="spinner" className="engineSpinner">
-          <div className="fa fa-spinner fa-pulse" />
-        </div> :
-        null
-      }
     </section>
   );
 }
@@ -49,7 +45,7 @@ export function renderGameActionsBar(ctrl, type) {
           () => window.plugins.toast.show(i18n('createAGame'), 'short', 'bottom')
         )}
       />
-      <button className="action_bar_button fa fa-eye"
+      <button data-icon="A" className="action_bar_button"
         config={helper.ontouch(
           () => m.route(`/analyse/offline/${type}/${ctrl.data.player.color}`),
           () => window.plugins.toast.show(i18n('analysis'), 'short', 'bottom')
@@ -73,7 +69,7 @@ export function renderGameActionsBarTablet(ctrl, type) {
       <button className="action_bar_button" data-icon="U"
         config={helper.ontouch(ctrl.newGameMenu.open, () => window.plugins.toast.show(i18n('createAGame'), 'short', 'bottom'))}
       />
-      <button className="action_bar_button fa fa-eye"
+      <button data-icon="A" className="action_bar_button"
         config={helper.ontouch(() => m.route(`/analyse/offline/${type}/${ctrl.data.player.color}`))}
       />
       <button className="fa fa-share-alt action_bar_button"
@@ -99,11 +95,15 @@ export function setResult(ctrl, status, winner) {
   const sit = ctrl.replay.situation();
   if (status) {
     ctrl.data.game.status = status;
+  } else {
+    ctrl.data.game.status = { id: 20 };
   }
   ctrl.data.game.winner = winner || sit.winner;
 }
 
 export function renderEndedGameStatus(ctrl) {
+  if (!ctrl.replay) return null;
+
   const sit = ctrl.replay.situation();
   if (gameStatusApi.finished(ctrl.data)) {
     const result = gameApi.result(ctrl.data);

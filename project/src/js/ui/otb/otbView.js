@@ -2,12 +2,12 @@ import gameApi from '../../lichess/game';
 import chessground from 'chessground-mobile';
 import layout from '../layout';
 import { header as renderHeader, viewOnlyBoardContent } from '../shared/common';
+import Board from '../shared/Board';
 import { renderAntagonist, renderGameActionsBar, renderReplayTable } from '../shared/offlineRound';
 import { view as renderPromotion } from '../shared/offlineRound/promotion';
-import ground from '../round/ground';
 import helper from '../helper';
 import i18n from '../../i18n';
-import { renderBoard } from '../round/view/roundView';
+import { getBoardBounds } from '../../utils';
 import actions from './actions';
 import newGameMenu from './newOtbGame';
 import settings from '../../settings';
@@ -43,7 +43,7 @@ export default function view(ctrl) {
 
 function renderContent(ctrl, pieceTheme) {
   const flip = settings.otb.flipPieces();
-  const wrapperClass = helper.classSet({
+  const wrapperClasses = helper.classSet({
     'otb': true,
     'mode_flip': flip,
     'mode_facing': !flip,
@@ -55,18 +55,26 @@ function renderContent(ctrl, pieceTheme) {
   const opponentName = i18n(ctrl.data.opponent.color);
   const replayTable = renderReplayTable(ctrl.replay);
   const isPortrait = helper.isPortrait();
-  const bounds = ground.getBounds(isPortrait);
+  const bounds = getBoardBounds(helper.viewportDim(), isPortrait, helper.isIpadLike(), 'game');
+  const board = Board(
+    ctrl.data,
+    ctrl.chessground,
+    bounds,
+    isPortrait,
+    wrapperClasses,
+    pieceTheme
+  );
 
   if (isPortrait)
     return [
       renderAntagonist(ctrl, opponentName, material[ctrl.data.opponent.color], 'opponent', isPortrait),
-      renderBoard(ctrl.data, ctrl.chessground, bounds, isPortrait, wrapperClass, pieceTheme),
+      board,
       renderAntagonist(ctrl, playerName, material[ctrl.data.player.color], 'player', isPortrait),
       renderGameActionsBar(ctrl, 'otb')
     ];
   else
     return [
-      renderBoard(ctrl.data, ctrl.chessground, bounds, isPortrait, wrapperClass, pieceTheme),
+      board,
       <section key="table" className="table">
         <section className="playersTable offline">
           {renderAntagonist(ctrl, opponentName, material[ctrl.data.opponent.color], 'opponent', isPortrait)}

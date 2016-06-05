@@ -1,5 +1,6 @@
+import { get, set } from 'lodash/object';
 import { request } from './http';
-import { hasNetwork, handleXhrError, noop, serializeQueryParameters } from './utils';
+import { hasNetwork, handleXhrError, serializeQueryParameters } from './utils';
 import i18n from './i18n';
 import settings from './settings';
 import friendsApi from './lichess/friends';
@@ -29,9 +30,20 @@ function nowPlaying() {
   });
 }
 
+function isKidMode() {
+  return session && session.kid;
+}
+
 function myTurnGames() {
   return nowPlaying().filter(function(e) {
     return e.isMyTurn;
+  });
+}
+
+function toggleKidMode() {
+  return request('/account/kidConfirm', {
+    method: 'POST',
+    deserialize: v => v
   });
 }
 
@@ -44,7 +56,7 @@ function savePreferences() {
     xhr.timeout = 8000;
   }
 
-  const prefs = mapValues(pick(session.prefs || {}, [
+  const prefs = mapValues(pick(session && session.prefs || {}, [
     'animation',
     'captured',
     'highlight',
@@ -79,24 +91,26 @@ function savePreferences() {
   }, true, xhrConfig);
 }
 
-function lichessBackedProp(key) {
+function lichessBackedProp(path, prefRequest) {
   return function() {
     if (arguments.length) {
+      var oldPref;
       if (session) {
-        var oldPref = session.prefs[key];
-        session.prefs[key] = arguments[0];
+        oldPref = get(session, path);
+        set(session, path, arguments[0]);
       }
-      savePreferences()
-      .then(noop, err => {
-        if (session) session.prefs[key] = oldPref;
+      prefRequest()
+      .catch(err => {
+        if (session) set(session, path, oldPref);
         handleXhrError(err);
         // need to do this to force mithril to correctly render checkbox state
+        // TODO need to find another way now it animates where it should not
         m.redraw.strategy('all');
         m.redraw();
       });
     }
 
-    return session && session.prefs[key];
+    return session && get(session, path);
   };
 }
 
@@ -150,11 +164,12 @@ function refresh() {
   if (hasNetwork() && isConnected()) {
     return request('/account/info', {
       background: true
-    }).then(function(data) {
+    })
+    .then(data => {
       session = data;
       m.redraw();
       return session;
-    }, function(err) {
+    }, err => {
       if (session && err.status === 401) {
         session = null;
         m.redraw();
@@ -169,6 +184,7 @@ function refresh() {
 
 export default {
   isConnected,
+  isKidMode,
   logout,
   signup,
   login: throttle(login, 1000),
@@ -179,5 +195,6 @@ export default {
   getUserId,
   nowPlaying,
   myTurnGames,
-  lichessBackedProp
+  lichessBackedProp,
+  toggleKidMode
 };

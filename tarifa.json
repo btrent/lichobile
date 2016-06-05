@@ -2,7 +2,7 @@
   "name": "lichess",
   "id": "org.lichess.mobileapp",
   "description": "lichess.org mobile application",
-  "version": "3.0.0",
+  "version": "4.0.1",
   "platforms": [
     "ios@4.1.0",
     "android@5.1.1"
@@ -57,7 +57,7 @@
       "API_END_POINT": "en.lichess.org",
       "SOCKET_END_POINT": "socket.en.lichess.org",
       "GA_ID": "UA-7935029-3",
-      "version": "2.11.0",
+      "version": "4.0.1",
       "cordova": {
         "whitelist": [
           {
@@ -94,11 +94,12 @@
         "extend": "stage"
       },
       "beta": {
-        "extend": "beta"
+        "extend": "beta",
+        "hockeyapp_id": "4e38b7c4dc87418da76b705bec405530"
       },
       "prod": {
         "extend": "prod",
-        "version_code": "201100",
+        "version_code": "400001",
         "release": true,
         "sign": "store"
       }
@@ -129,7 +130,7 @@
       "StatusBarOverlaysWebView": false,
       "StatusBarBackgroundColor": "#151A1E",
       "BackgroundColor": "0xFF151A1E",
-      "xwalkVersion": "17",
+      "xwalkVersion": "18",
       "xwalkCommandLine": "--enable-viewport-meta --disable-pull-to-refresh-effect"
     },
     "build": {
@@ -163,7 +164,7 @@
     "cordova-plugin-dialogs": "cordova-plugin-dialogs@1.2.0",
     "cordova-plugin-globalization": "cordova-plugin-globalization@1.0.2",
     "cordova-plugin-network-information": "cordova-plugin-network-information@1.2.0",
-    "cordova-plugin-statusbar": "cordova-plugin-statusbar@2.1.1",
+    "cordova-plugin-statusbar": "cordova-plugin-statusbar@2.1.3",
     "cordova-plugin-inappbrowser": "cordova-plugin-inappbrowser@1.3.0",
     "cordova-plugin-whitelist": "cordova-plugin-whitelist@1.2.1",
     "cordova-plugin-google-analytics": "cordova-plugin-google-analytics@0.8.1",
@@ -178,9 +179,11 @@
     "ionic-plugin-keyboard": "ionic-plugin-keyboard@1.0.8",
     "nl.x-services.plugins.insomnia": "cordova-plugin-insomnia@4.2.0",
     "cordova-plugin-x-socialsharing": "cordova-plugin-x-socialsharing@5.0.11",
-    "cordova-plugin-crosswalk-webview": "cordova-plugin-crosswalk-webview@1.6.1",
+    "cordova-plugin-crosswalk-webview": "cordova-plugin-crosswalk-webview@1.7.0",
+    "cordova-plugin-stockfish": "https://github.com/veloce/cordova-plugin-stockfish",
+    "cordova-plugin-vibration": "cordova-plugin-vibration@2.1.1",
     "phonegap-plugin-push": {
-      "uri": "phonegap-plugin-push@1.6.2",
+      "uri": "phonegap-plugin-push@1.6.3",
       "variables": {
         "SENDER_ID": "0000000000000"
       }

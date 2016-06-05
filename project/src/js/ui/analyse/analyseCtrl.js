@@ -11,12 +11,15 @@ import helper from '../helper';
 import gameApi from '../../lichess/game';
 import settings from '../../settings';
 import continuePopup from '../shared/continuePopup';
+import importPgnPopup from './importPgnPopup.js';
 import { handleXhrError, oppositeColor } from '../../utils';
 import { getAnalyseData, getCurrentOTBGame, getCurrentAIGame } from '../../utils/offlineGames';
 import { game as gameXhr } from '../../xhr';
 import { makeData, makeDefaultData } from './data';
 import notes from '../round/notes';
 import chessLogic from './chessLogic';
+import { renderStepsTxt } from './pgnExport';
+import { getPGN } from '../round/roundXhr';
 import menu from './menu';
 import m from 'mithril';
 
@@ -30,8 +33,11 @@ export default function controller() {
 
   this.data = null;
 
+  this.chessLogic = chessLogic(this);
+
   this.menu = menu.controller(this);
   this.continuePopup = continuePopup.controller();
+  this.importPgnPopup = importPgnPopup.controller(this);
 
   this.vm = {
     fromGame: gameId !== undefined,
@@ -61,6 +67,16 @@ export default function controller() {
     if (uci[1] === '@') return [uci.substr(2, 2), uci.substr(2, 2)];
     return [uci.substr(0, 2), uci.substr(2, 2)];
   }
+
+  this.initCeval = function() {
+    if (this.ceval.enabled()) {
+      if (this.ceval.isInit()) {
+        this.startCeval();
+      } else {
+        this.ceval.init().then(this.startCeval);
+      }
+    }
+  }.bind(this);
 
   this.startCeval = function() {
     if (this.ceval.enabled() && this.canUseCeval()) {
@@ -234,7 +250,7 @@ export default function controller() {
   const allowCeval = function() {
     return (
       this.source === 'offline' || util.isSynthetic(this.data) || !gameApi.playable(this.data)
-    ) && ['standard', 'chess960', 'fromPosition'].indexOf(this.data.game.variant.key) !== -1;
+    ) && ['standard', 'chess960', 'fromPosition', 'kingOfTheHill'].indexOf(this.data.game.variant.key) !== -1;
   }.bind(this);
 
   function onCevalMsg(res) {
@@ -276,7 +292,7 @@ export default function controller() {
     if (this.chessLogic) this.chessLogic.onunload();
   }.bind(this);
 
-  const init = function(data) {
+  this.init = function(data) {
     this.data = data;
     if (settings.analyse.supportedVariants.indexOf(this.data.game.variant.key) === -1) {
       window.plugins.toast.show(`Analysis board does not support ${this.data.game.variant.name} variant.`, 'short', 'center');
@@ -284,7 +300,6 @@ export default function controller() {
     }
     if (!data.game.moveTimes) this.data.game.moveTimes = [];
     this.ongoing = !util.isSynthetic(this.data) && gameApi.playable(this.data);
-    this.chessLogic = new chessLogic(this);
     this.analyse = new analyse(this.data.steps);
     this.ceval = cevalCtrl(this.data.game.variant.key, allowCeval(), onCevalMsg.bind(this));
     this.notes = this.data.game.speed === 'correspondence' ? new notes.controller(this) : null;
@@ -298,19 +313,42 @@ export default function controller() {
     this.vm.pathStr = treePath.write(initialPath);
 
     showGround();
-    this.startCeval();
+    this.initCeval();
   }.bind(this);
 
   this.startNewAnalysis = function() {
-    init(makeDefaultData());
+    if (m.route() === '/analyse') {
+      m.route('/analyse', null, true);
+    } else {
+      m.route('/analyse');
+    }
   };
+
+  this.sharePGN = function() {
+    if (this.source === 'online') {
+      getPGN(this.data.game.id)
+      .then(pgn => window.plugins.socialsharing.share(pgn))
+      .catch(handleXhrError);
+    } else if (this.source === 'offline' && gameId !== undefined) {
+      this.chessLogic.exportPgn(
+        this.data.game.variant.key,
+        this.data.game.initialFen,
+        this.data.endSituation.pgnMoves
+      )
+      .then(res => window.plugins.socialsharing.share(res.pgn))
+      .catch(console.error.bind(console));
+    } else {
+      window.plugins.socialsharing.share(renderStepsTxt(this.analyse.getSteps(this.vm.path)));
+    }
+  }.bind(this);
 
   if (this.source === 'online' && gameId) {
     gameXhr(gameId, orientation, false).then(function(cfg) {
       helper.analyticsTrackView('Analysis (online game)');
-      init(makeData(cfg));
+      cfg.orientation = orientation;
+      this.init(makeData(cfg));
       m.redraw();
-    }, err => {
+    }.bind(this), err => {
       handleXhrError(err);
       m.route('/');
     });
@@ -322,7 +360,7 @@ export default function controller() {
     } else {
       otbData.player.spectator = true;
       otbData.orientation = orientation;
-      init(makeData(otbData));
+      this.init(makeData(otbData));
     }
   } else if (this.source === 'offline' && gameId === 'ai') {
     helper.analyticsTrackView('Analysis (offline ai)');
@@ -332,12 +370,12 @@ export default function controller() {
     } else {
       aiData.player.spectator = true;
       aiData.orientation = orientation;
-      init(makeData(aiData));
+      this.init(makeData(aiData));
     }
   }
   else {
     helper.analyticsTrackView('Analysis (empty)');
-    init(makeDefaultData(fen));
+    this.init(makeDefaultData(fen));
   }
 
   window.plugins.insomnia.keepAwake();

@@ -14,6 +14,14 @@ export function autoredraw(action) {
   }
 }
 
+export function tellWorker(worker, topic, payload) {
+  if (payload !== undefined) {
+    worker.postMessage({ topic, payload });
+  } else {
+    worker.postMessage({ topic });
+  }
+}
+
 export function askWorker(worker, msg, callback) {
   return new Promise(function(resolve) {
     function listen(e) {
@@ -250,6 +258,105 @@ export function challengeTime(c) {
     return c.timeControl.show;
   } else if (c.timeControl.type === 'correspondence') {
     return i18n('nbDays', c.timeControl.daysPerTurn);
+  } else {
+    return '∞';
+  }
+}
+
+export function boardOrientation(data, flip) {
+  if (data.game.variant.key === 'racingKings') {
+    return flip ? 'black' : 'white';
+  } else {
+    return flip ? data.opponent.color : data.player.color;
+  }
+}
+
+export function getBoardBounds(viewportDim, isPortrait, isIpadLike, mode) {
+  const { vh, vw } = viewportDim;
+  const top = 50;
+
+  if (isPortrait) {
+    const contentHeight = vh - 50;
+    const pTop = 50 + (mode === 'game' ? ((contentHeight - vw - 40) / 2) : 0);
+    return {
+      top: pTop,
+      right: vw,
+      bottom: pTop + vw,
+      left: 0,
+      width: vw,
+      height: vw
+    };
+  } else if (isIpadLike) {
+    const wsSide = vh - top - (vh * 0.12);
+    const wsTop = top + ((vh - wsSide - top) / 2);
+    return {
+      top: wsTop,
+      right: wsSide,
+      bottom: wsTop + wsSide,
+      left: 0,
+      width: wsSide,
+      height: wsSide
+    };
+  } else {
+    const lSide = vh - top;
+    return {
+      top,
+      right: lSide,
+      bottom: top + lSide,
+      left: 0,
+      width: lSide,
+      height: lSide
+    };
+  }
+}
+
+export function variantReminder(el, icon) {
+  const div = document.createElement('div');
+  div.className = 'variant_reminder';
+  div.dataset.icon = icon;
+  el.appendChild(div);
+  setTimeout(function() {
+    const r = el.querySelector('.variant_reminder');
+    if (r) {
+      r.classList.add('gone');
+      setTimeout(function() {
+        if (el && r) el.removeChild(r);
+      }, 600);
+    }
+  }, 800);
+}
+
+export function pad(num, size) {
+    var s = num + '';
+    while (s.length < size) s = '0' + s;
+    return s;
+}
+
+export function formatTournamentCountdown(seconds) {
+  let timeStr = '';
+  const hours = Math.floor(seconds / 60 / 60);
+  const mins = Math.floor(seconds / 60) - (hours * 60);
+  const secs = seconds % 60;
+  if (hours > 0) {
+    timeStr = hours + ':' + pad(mins, 2) + ':' + pad(secs, 2);
+  } else {
+    timeStr = mins + ':' + pad(secs, 2);
+  }
+
+  return timeStr;
+}
+
+export function formatTournamentDuration(timeInMin) {
+  const hours = Math.floor(timeInMin / 60);
+  const minutes = Math.floor(timeInMin - hours * 60);
+  return (hours ? hours + 'H ' : '') + (minutes ? minutes + 'M' : '');
+}
+
+export function formatTournamentTimeControl(clock) {
+  if (clock) {
+    const min = secondsToMinutes(clock.limit);
+    const t = min === 0.5 ? '½' : min === 0.75 ? '¾' : min.toString();
+    return t + '+' + clock.increment;
   } else {
     return '∞';
   }

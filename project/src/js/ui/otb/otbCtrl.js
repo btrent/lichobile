@@ -24,6 +24,8 @@ export default function controller() {
   socket.createDefault();
 
   const chessWorker = new Worker('vendor/scalachessjs.js');
+  this.actions = actions.controller(this);
+  this.newGameMenu = newGameMenu.controller(this);
 
   this.save = function() {
     setCurrentOTBGame({
@@ -71,9 +73,6 @@ export default function controller() {
       m.redraw();
     }, 500);
   }.bind(this);
-
-  this.actions = new actions.controller(this);
-  this.newGameMenu = new newGameMenu.controller(this);
 
   this.init = function(data, situations, ply) {
     this.actions.close();
@@ -138,15 +137,15 @@ export default function controller() {
 
   const setupFen = storage.get(storageFenKey);
   const saved = getCurrentOTBGame();
-  if (saved) {
+  if (setupFen) {
+    this.startNewGame(setupFen);
+  } else if (saved) {
     try {
       this.init(saved.data, saved.situations, saved.ply);
     } catch (e) {
       console.log(e, 'Fail to load saved game');
       this.startNewGame();
     }
-  } else if (setupFen) {
-    this.startNewGame(setupFen);
   } else {
     this.startNewGame();
   }

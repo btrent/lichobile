@@ -1,4 +1,5 @@
 import { oppositeColor } from '../../../utils';
+import i18n from '../../../i18n';
 
 
 const standardVariant = {
@@ -18,6 +19,7 @@ export default function data(cfg) {
 
   return {
     game: {
+      offline: true,
       variant: cfg.variant,
       initialFen: cfg.fen,
       fen: cfg.fen,
@@ -27,10 +29,12 @@ export default function data(cfg) {
       }
     },
     player: {
-      color: cfg.color
+      color: cfg.color,
+      username: i18n(cfg.color)
     },
     opponent: {
-      color: oppositeColor(cfg.color)
+      color: oppositeColor(cfg.color),
+      username: i18n(oppositeColor(cfg.color))
     },
     pref: {
       animationDuration: 300,

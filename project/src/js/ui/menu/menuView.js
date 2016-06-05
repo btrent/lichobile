@@ -24,9 +24,9 @@ export default function view() {
 function renderHeader(user) {
   return (
     <header className="side_menu_header">
-      <div className="logo" />
+      { session.isKidMode() ? <div className="kiddo">😊</div> : <div className="logo" /> }
       <h2 className="username">
-        { hasNetwork() ? user ? user.username : 'Anonymous' : 'Offline' }
+        { hasNetwork() ? user ? user.username : 'Anonymous' : i18n('offline') }
       </h2>
       { hasNetwork() && user ?
         <button className="open_button" data-icon={menu.headerOpen() ? 'S' : 'R'}
@@ -123,6 +123,11 @@ function renderLinks(user) {
       </li> : null
       }
       {hasNetwork() ?
+      <li className="side_link" key="tournament" config={helper.ontouchY(menu.route('/tournament'))}>
+        <span className="fa fa-trophy"/>{i18n('tournament')}
+      </li> : null
+      }
+      {hasNetwork() ?
       <li className="sep_link" key="sep_link_community">
         {i18n('community')}
       </li> : null
@@ -148,7 +153,7 @@ function renderLinks(user) {
       </li>
       <li className="sep_link" key="sep_link_tools">{i18n('tools')}</li>
       <li className="side_link" key="analyse" config={helper.ontouchY(menu.route('/analyse'))}>
-        <span className="fa fa-eye" />{i18n('analysis')}
+        <span data-icon="A" />{i18n('analysis')}
       </li>
       <li className="side_link" key="editor" config={helper.ontouchY(menu.route('/editor'))}>
         <span className="fa fa-pencil" />{i18n('boardEditor')}
@@ -166,9 +171,7 @@ function renderMenu() {
 
   return (
     <div className="native_scroller">
-      <header className="side_menu_header">
-        {renderHeader(user)}
-      </header>
+      {renderHeader(user)}
       {user && menu.headerOpen() ? renderProfileActions(user) : renderLinks(user)}
     </div>
   );
