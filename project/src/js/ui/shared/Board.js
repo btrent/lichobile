@@ -74,14 +74,6 @@ export default function(
       style={wrapperStyle} key={key}
     >
     <div className={boardClass} config={boardConfig} />
-    { chessgroundCtrl.data.premovable.current ?
-      <div className="board_alert">
-        {i18n('premoveEnabledClickAnywhereToCancel')}
-      </div> : alert ?
-      <div className="board_alert">
-        {alert}
-      </div> : null
-    }
     {
       shapes && shapes.length ?
       m.component(BoardBrush, {
