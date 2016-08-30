@@ -259,11 +259,12 @@ export default function ctrl() {
         duration: 300
       },
       premovable: {
-        enabled: true
+        enabled: false
       },
       draggable: {
         distance: 3,
-        squareTarget: true
+        squareTarget: true,
+        magnified: settings.game.magnified()
       }
     };
     if (this.chessground) this.chessground.set(chessgroundConf);
@@ -306,6 +307,10 @@ export default function ctrl() {
     window.plugins.socialsharing.share(null, null, null, `http://lichess.org/training/${this.data.puzzle.id}`);
   }.bind(this);
 
+  this.getFen = function() {
+    return this.data.replay.history[this.data.replay.step].fen;
+  }.bind(this);
+
   this.setDifficulty = function(id) {
     return xhr.setDifficulty(id)
       .then(pushState)
@@ -321,6 +326,9 @@ export default function ctrl() {
   window.plugins.insomnia.keepAwake();
 
   this.onunload = function() {
+    if (this.chessground) {
+      this.chessground.onunload();
+    }
     window.plugins.insomnia.allowSleepAgain();
   };
 }

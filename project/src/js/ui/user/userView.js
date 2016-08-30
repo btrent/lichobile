@@ -1,5 +1,5 @@
 import userPerfs from '../../lichess/perfs';
-import { header as headerWidget, backButton } from '../shared/common';
+import { header as headerWidget, backButton as renderBackbutton } from '../shared/common';
 import { getLanguageNativeName } from '../../utils/langs';
 import perf from '../shared/perf';
 import layout from '../layout';
@@ -16,7 +16,8 @@ export default function view(ctrl) {
   function header() {
     //const title = (user.title ? `${user.title} ` : '') + user.username;
     const title = user.username;
-    return headerWidget(null, backButton(title));
+    const backButton = !ctrl.isMe() ? renderBackbutton(title) : null;
+    return headerWidget(backButton ? null : title, backButton);
   }
 
   function profile() {

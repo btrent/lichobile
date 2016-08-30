@@ -2,7 +2,7 @@ import merge from 'lodash/merge';
 import spinner from './spinner';
 import m from 'mithril';
 
-export const apiVersion = 1;
+export const apiVersion = 2;
 
 const baseUrl = window.lichess.apiEndPoint;
 
@@ -27,7 +27,7 @@ function xhrConfig(xhr) {
 export function request(url, opts, feedback, xhrConf) {
 
   var cfg = {
-    url: 'http://' + baseUrl + url,
+    url: baseUrl + url,
     method: 'GET',
     data: { },
     config: xhrConf || xhrConfig,

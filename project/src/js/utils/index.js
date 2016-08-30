@@ -22,16 +22,15 @@ export function tellWorker(worker, topic, payload) {
   }
 }
 
-export function askWorker(worker, msg, callback) {
-  return new Promise(function(resolve) {
+export function askWorker(worker, msg) {
+  return new Promise(function(resolve, reject) {
     function listen(e) {
       if (e.data.topic === msg.topic) {
         worker.removeEventListener('message', listen);
-        if (callback) {
-          callback(e.data.payload);
-        } else {
-          resolve(e.data.payload);
-        }
+        resolve(e.data.payload);
+      } else if (e.data.topic === 'error' && e.data.payload.callerTopic === msg.topic) {
+        worker.removeEventListener('message', listen);
+        reject(e.data.payload.error);
       }
     }
     worker.addEventListener('message', listen);
@@ -271,7 +270,7 @@ export function boardOrientation(data, flip) {
   }
 }
 
-export function getBoardBounds(viewportDim, isPortrait, isIpadLike, mode) {
+export function getBoardBounds(viewportDim, isPortrait, isIpadLike, isLandscapeSmall, mode) {
   const { vh, vw } = viewportDim;
   const top = 50;
 
@@ -296,6 +295,17 @@ export function getBoardBounds(viewportDim, isPortrait, isIpadLike, mode) {
       left: 0,
       width: wsSide,
       height: wsSide
+    };
+  } else if (isLandscapeSmall) {
+    const smallTop = 45;
+    const lSide = vh - smallTop;
+    return {
+      top: smallTop,
+      right: lSide,
+      bottom: smallTop + lSide,
+      left: 0,
+      width: lSide,
+      height: lSide
     };
   } else {
     const lSide = vh - top;
@@ -332,7 +342,7 @@ export function pad(num, size) {
     return s;
 }
 
-export function formatTournamentCountdown(seconds) {
+export function formatTimeInSecs(seconds) {
   let timeStr = '';
   const hours = Math.floor(seconds / 60 / 60);
   const mins = Math.floor(seconds / 60) - (hours * 60);
@@ -360,4 +370,8 @@ export function formatTournamentTimeControl(clock) {
   } else {
     return '∞';
   }
+}
+
+export function noNull(v) {
+  return v !== undefined && v !== null;
 }

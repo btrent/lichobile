@@ -1,6 +1,7 @@
 import storage from './storage';
+import { apiVersion } from './http';
 import xor from 'lodash/xor';
-import { lichessSri, autoredraw, askWorker, tellWorker, hasNetwork } from './utils';
+import { lichessSri, autoredraw, tellWorker, hasNetwork } from './utils';
 import * as xhr from './xhr';
 import i18n from './i18n';
 import friendsApi from './lichess/friends';
@@ -21,8 +22,8 @@ const proxyFailMsg = 'The connection to lichess server has failed. If the proble
 
 const defaultHandlers = {
   following_onlines: handleFollowingOnline,
-  following_enters: name => autoredraw(friendsApi.add.bind(undefined, name)),
-  following_leaves: name => autoredraw(friendsApi.remove.bind(undefined, name)),
+  following_enters: name => autoredraw(() => friendsApi.add(name)),
+  following_leaves: name => autoredraw(() => friendsApi.remove(name)),
   challenges: data => {
     challengesApi.set(data);
     m.redraw();
@@ -76,7 +77,7 @@ function createGame(url, version, handlers, gameUrl, userTv) {
 }
 
 function createTournament(tournamentId, version, handlers, featuredGame) {
-  let url = '/tournament/' + tournamentId + '/socket/v1';
+  let url = '/tournament/' + tournamentId + `/socket/v${apiVersion}`;
   socketHandlers = {
     events: Object.assign({}, defaultHandlers, handlers)
   };
@@ -140,7 +141,7 @@ function createLobby(lobbyVersion, onOpen, handlers) {
   tellWorker(worker, 'create', {
     clientId: lichessSri,
     socketEndPoint: window.lichess.socketEndPoint,
-    url: '/lobby/socket/v1',
+    url: `/lobby/socket/v${apiVersion}`,
     version: lobbyVersion,
     opts
   });
@@ -250,9 +251,6 @@ export default {
   redirectToGame,
   setVersion(version) {
     tellWorker(worker, 'setVersion', version);
-  },
-  getAverageLag(callback) {
-    askWorker(worker, { topic: 'averageLag' }, callback);
   },
   send(type, data, opts) {
     tellWorker(worker, 'send', [type, data, opts]);

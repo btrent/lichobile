@@ -2,6 +2,7 @@ import menu from './menu';
 import menuView from './menu/menuView';
 import gamesMenu from './gamesMenu';
 import newGameForm from './newGameForm';
+import playMachineForm from './playMachineForm';
 import challengeForm from './challengeForm';
 import loginModal from './loginModal';
 import signupModal from './signupModal';
@@ -26,7 +27,7 @@ export default {
           <header className="main_header board">
             {header()}
           </header>
-          <div className="content_round">{content()}</div>
+          <div id="content_round" className="content_round">{content()}</div>
           { menu.isOpen ? <div className="menu-close-overlay" config={helper.ontouch(menu.close)} /> : null }
         </main>
         {menuView()}
@@ -34,6 +35,7 @@ export default {
         {loginModal.view()}
         {signupModal.view()}
         {newGameForm.view()}
+        {playMachineForm.view()}
         {challengeForm.view()}
         {friendsPopup.view()}
         {lobby.view()}
@@ -61,9 +63,25 @@ export default {
         {loginModal.view()}
         {signupModal.view()}
         {newGameForm.view()}
+        {playMachineForm.view()}
         {challengeForm.view()}
         {friendsPopup.view()}
         {lobby.view()}
+        {overlay ? overlay() : null}
+      </div>
+    );
+  },
+
+  clock: function(content, overlay) {
+    background = background || settings.general.theme.background();
+    return (
+      <div className={'view-container ' + background}>
+        <main id="page">
+          <div className="content fullScreen">
+            {content()}
+          </div>
+          { menu.isOpen ? <div className="menu-close-overlay" config={helper.ontouch(menu.close)} /> : null }
+        </main>
         {overlay ? overlay() : null}
       </div>
     );

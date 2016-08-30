@@ -3,7 +3,7 @@ import session from '../../../session';
 import layout from '../../layout';
 import m from 'mithril';
 import i18n from '../../../i18n';
-import { noop, gameIcon, formatTournamentCountdown, formatTournamentDuration, formatTournamentTimeControl } from '../../../utils';
+import { noop, gameIcon, formatTimeInSecs, formatTournamentDuration, formatTournamentTimeControl } from '../../../utils';
 import faq from '../faq';
 import playerInfo from '../playerInfo';
 import helper from '../../helper';
@@ -105,16 +105,32 @@ function tournamentContentStarted(ctrl) {
 function tournamentHeader(data, time, timeText) {
   const variant = variantDisplay(data);
   const control = formatTournamentTimeControl(data.clock);
+  const conditionsClass = [
+    'tournamentConditions',
+    session.isConnected() ? '' : 'anonymous',
+    data.verdicts.accepted ? 'accepted' : 'rejected'
+  ].join(' ');
   return (
     <div key="header" className="tournamentHeader">
-      <div className="tournamentInfoTime">
-        <strong className="tournamentInfo" data-icon={gameIcon(variantKey(data))}>
+      <div className="tournamentInfoTime clearfix">
+        <strong className="tournamentInfo withIcon" data-icon={gameIcon(variantKey(data))}>
           {variant + ' • ' + control + ' • ' + formatTournamentDuration(data.minutes) }
         </strong>
         <div className="timeInfo">
           <strong> {timeInfo(time, timeText)} </strong>
         </div>
       </div>
+      { data.verdicts.list.length > 0 ?
+        <div className={conditionsClass} data-icon="7">
+          { data.verdicts.list.map(o => {
+            return (
+              <p className={'condition' + (o.accepted ? 'accepted' : 'rejected')}>
+                { o.condition }
+              </p>
+            );
+          })}
+        </div> : null
+      }
       <div className="tournamentCreatorInfo">
         { data.createdBy === 'lichess' ? i18n('tournamentOfficial') : i18n('by', data.createdBy) }
         &nbsp;•&nbsp;
@@ -125,7 +141,10 @@ function tournamentHeader(data, time, timeText) {
 }
 
 function joinButton(ctrl) {
-  if (!session.isConnected() || ctrl.tournament().isFinished || settings.game.supportedVariants.indexOf(ctrl.tournament().variant) < 0) {
+  if (!session.isConnected() ||
+    ctrl.tournament().isFinished ||
+    settings.game.supportedVariants.indexOf(ctrl.tournament().variant) < 0 ||
+    !ctrl.tournament().verdicts.accepted) {
     return null;
   }
 
@@ -171,7 +190,7 @@ function variantKey(data) {
 function timeInfo(time, preceedingText) {
   if (!time) return '';
 
-  return preceedingText + ' ' + formatTournamentCountdown(time);
+  return preceedingText + ' ' + formatTimeInSecs(time);
 }
 
 function tournamentLeaderboard(ctrl) {

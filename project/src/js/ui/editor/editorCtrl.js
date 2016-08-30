@@ -1,4 +1,5 @@
 import chessground from 'chessground-mobile';
+import settings from '../../settings';
 import { computeFen, readFen } from './editor';
 import menu from './menu';
 import m from 'mithril';
@@ -70,10 +71,9 @@ export default function controller() {
       enabled: false
     },
     draggable: {
-      showGhost: false,
       autoDistance: false,
       squareTarget: true,
-      preventDefault: false
+      magnified: settings.game.magnified()
     },
     events: {
       change: () => {
@@ -100,7 +100,6 @@ export default function controller() {
   this.onunload = function() {
     if (this.chessground) {
       this.chessground.onunload();
-      this.chessground = null;
     }
   };
 
