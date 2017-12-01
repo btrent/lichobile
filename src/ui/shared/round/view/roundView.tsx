@@ -239,6 +239,13 @@ function renderAntagonistInfo(ctrl: OnlineRound, player: Player, material: Mater
 
   return (
     <div className={'antagonistInfos' + (isCrazy ? ' crazy' : '') + (isZen ? ' zen' : '')} oncreate={vConf}>
+      {isCrazy && ctrl.clock ?
+        renderClock(ctrl.clock, player.color, ctrl.vm.goneBerserk[player.color], runningColor) :
+        isCrazy && ctrl.correspondenceClock ?
+          renderCorrespondenceClock(
+            ctrl.correspondenceClock, player.color, ctrl.data.game.player
+          ) : null
+      }
       <h2 className="antagonistUser">
         { user && user.patron ?
           <span className={'patron status ' + (player.onGame ? 'ongame' : 'offgame')} data-icon="" />
@@ -266,13 +273,6 @@ function renderAntagonistInfo(ctrl: OnlineRound, player: Player, material: Mater
         {ctrl.data.game.variant.key === 'horde' ? null : renderMaterial(material)}
       </div> : null
       }
-      {isCrazy && ctrl.clock ?
-        renderClock(ctrl.clock, player.color, ctrl.vm.goneBerserk[player.color], runningColor) :
-        isCrazy && ctrl.correspondenceClock ?
-          renderCorrespondenceClock(
-            ctrl.correspondenceClock, player.color, ctrl.data.game.player
-          ) : null
-      }
     </div>
   )
 }
@@ -286,15 +286,6 @@ function renderPlayTable(ctrl: OnlineRound, player: Player, material: Material, 
 
   return (
     <section className={'playTable' + (isCrazy ? ' crazy' : '')}>
-      {renderAntagonistInfo(ctrl, player, material, position, isPortrait, isCrazy)}
-      { !!step.crazy ?
-        h(CrazyPocket, {
-          ctrl,
-          crazyData: step.crazy,
-          color: player.color,
-          position
-        }) : null
-      }
       { !isCrazy && ctrl.clock ?
         renderClock(ctrl.clock, player.color, ctrl.vm.goneBerserk[player.color], runningColor) :
         !isCrazy && ctrl.correspondenceClock ?
@@ -304,6 +295,15 @@ function renderPlayTable(ctrl: OnlineRound, player: Player, material: Material, 
       }
       { playable && (myTurn && position === 'player' || !myTurn && position === 'opponent') ?
         renderExpiration(ctrl, position, myTurn) : null
+      }
+      {renderAntagonistInfo(ctrl, player, material, position, isPortrait, isCrazy)}
+      { !!step.crazy ?
+        h(CrazyPocket, {
+          ctrl,
+          crazyData: step.crazy,
+          color: player.color,
+          position
+        }) : null
       }
     </section>
   )
