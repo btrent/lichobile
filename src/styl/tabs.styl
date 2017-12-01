@@ -1,0 +1,47 @@
+
+// tab navigation
+.tabs-nav-header
+  position relative
+
+.tabs-navigation
+  display flex
+  flex-flow row nowrap
+  height 48px
+  position relative
+  background headerBgDark
+
+.tab-button
+  flex 0 1 auto
+  text-transform uppercase
+  text-align center
+  padding 0 10px
+  font-size 14px
+  overflow hidden
+  height calc(100% - 2px)
+  color darken(headerBgDarkColor, 10%)
+  &.active
+    background-color lighten(bgdark, 10%)
+  &.selected
+    color gold
+
+.tabIndicator
+  position absolute
+  bottom 0
+  left 0
+  height 2px
+  background-color gold
+  transition transform ease-out 200ms
+
+
+// tab content
+.tabs-view
+  display flex
+  flex-flow row nowrap
+  width 300vw
+  height 100%
+  transition transform ease-out 100ms
+
+.tab-content
+  width 100vw
+  // mandatory for iOS
+  height 100%

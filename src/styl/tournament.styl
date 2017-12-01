@@ -1,0 +1,316 @@
+.header-subTitle.tournament-subtTitle
+  font-size 1em
+
+.tournament_item
+  display flex
+  flex-flow row nowrap
+  align-items center
+  &.official:before
+    color gold
+  &:before
+    position absolute
+    left 10px
+    top 21px
+    font-size 28px
+
+.tournamentListName
+  text-align: left
+  text-overflow: ellipsis
+  white-space: nowrap;
+  overflow hidden
+  width 65%
+  position relative
+  &:first-child
+    padding-left 40px
+  > .fullName
+    overflow hidden
+    text-overflow ellipsis
+
+.tournamentListTime
+  > .time
+    letter-spacing 0px
+  text-align right
+  width 35%
+
+.tournamentTitle
+  text-align left
+  font-weight bold
+  color gold
+  margin 10px 0 5px
+
+.tournamentFeatured
+  text-align center
+
+.tournamentTabsWrapper
+  height 'calc(100% - %s)' % footerHeight
+
+.tournamentStandings
+  width 100%
+  transition opacity 100ms
+  &.loading
+    opacity 0.8
+
+.on-fire
+  line-height 10px
+  &:before
+    content: attr(data-icon)
+    color: #d59120
+
+.off-fire
+  line-height 10px
+  &:before
+    content: ''
+
+td.tournamentPlayer
+  padding 10px
+  padding-left 0
+  text-align: left
+  text-overflow: ellipsis
+  white-space: nowrap;
+  overflow hidden
+  max-width 0
+  width 80%
+  &:first-child
+    padding-left 0
+
+.list_item.tournament-me
+  > td.tournamentPlayer
+    border-left 10px solid #d59120
+    padding-left 5px
+
+.progress
+  &.positive
+    color green
+  &.negative
+    color red
+
+td.tournamentPoints
+  padding 10px
+  text-align: right
+  max-width 0
+  width 20%
+  &:last-child
+    padding-right 0
+
+.timeArrow
+  font-weight: bold
+
+.tournamentHeader
+  padding 10px
+
+.tournamentConditions, .tournamentCreatorInfo, .tournamentPositionInfo
+  padding-bottom 0.8em
+
+.tournamentConditions
+  position relative
+  padding-left 23px
+  &.accepted
+    color green
+  &.rejected
+    color red
+  > .condition
+    &.accepted
+      color green
+    &.rejected
+      color red
+  &.anonymous
+    color inherit
+  &:before
+    font-size 18px
+    position absolute
+    left 0
+    opacity 0.7
+
+.tournamentCreatorInfo, .tournamentPositionInfo, .tournamentConditions
+  font-size 0.9em
+
+.tournamentNotFound
+  padding 1em
+  p
+    margin-bottom 0.5em
+
+.tournamentInfoTime
+  padding-bottom 0.6em
+  display flex
+  justify-content space-between
+  align-items center
+
+.tournamentInfo
+  &:before
+    content: attr(data-icon)
+
+.timeInfo
+  > strong
+    font-weight bold
+    font-family Cousine
+    font-size 1.2em
+
+.tournamentMiniBoard
+  display flex
+  flex-flow column wrap
+  justify-content flex-start
+  align-items center
+  margin-bottom 1em
+
+.podium
+  display flex
+  flex-flow row nowrap
+  font-size 0.75em
+  margin 0 10px
+  align-items flex-end
+  > div
+    overflow hidden
+    text-overflow ellipsis
+    display flex
+    flex-flow column wrap
+    justify-content flex-end
+    > div
+      margin 0 auto
+      text-align center
+    > .trophy
+      min-height 0 // chrome 48 bug workaround
+      margin-bottom 5px
+
+.place1
+  width 44%
+  font-size 1.25em
+  > .trophy
+    width 75%
+    content: url('../../images/trophies/trophy-1.png')
+
+.place2
+  width 31%
+  font-size 1.1em
+  > .trophy
+    width 55%
+    content: url('../../images/trophies/trophy-2.svg')
+
+.place3
+  width 25%
+  font-size 1em
+  > .trophy
+    width 50%
+    content: url('../../images/trophies/trophy-3.svg')
+
+.stats
+  font-size .7em
+  margin 0 auto
+
+.statName
+  text-align left
+
+.statData
+  text-align right
+
+.navigationButton.tournament-me
+  line-height 25px
+  width 60px
+  transition opacity 100ms
+  &:before
+    margin-right 5px
+  &.disabled
+    opacity 0.8
+  &.activated
+    color #ccc
+    text-shadow 0 1px 0 #000
+    background #444
+    border-color #404040
+    box-shadow 0 3px 4px rgba(0,0,0,0.35) inset
+
+.pageInfo
+  margin 0px 5px 0px 5px
+  @media only screen and (max-width 380px)
+    letter-spacing -1px
+
+.tournamentLeaderboard
+  display flex
+  flex-flow column nowrap
+  padding 0 10px
+
+.flagRank
+  &:before
+    font-size 1.2em
+    vertical-align  middle
+    font-family "lichess" !important
+    content attr(data-icon)
+
+.tournamentFaq
+  padding 10px
+  h2
+    font-weight bold
+    font-size 1.1em
+    margin-bottom 5px
+    &:not(:first-child)
+      margin-top 15px
+  .double
+    color: #d59120;
+  .streak
+    color: #759900;
+
+.playerStats
+  font-size 1em
+  margin 0 auto
+  border-spacing 10px 0px
+  border-collapse separate
+  > .invisible
+    display none
+
+.playerGames
+  width 100%
+  >.list_item
+    >td
+      vertical-align  middle
+
+#tournamentPlayerInfoModal
+  > header
+    box-sizing content-box
+    > .playerModalHeader
+      padding 0 40px
+      overflow hidden
+      white-space nowrap
+      text-overflow ellipsis
+  .playerGames
+    td
+      overflow hidden
+      text-overflow ellipsis
+      white-space nowrap
+  .oppName
+    max-width 160px
+
+.tournamentPlayerInfo
+  padding 5px
+
+.streak
+  color #759900
+
+.double
+  color #d59120
+
+#tournamentCreateForm
+  >fieldset
+    padding 0px 20px
+    >.select_input
+      >select
+        padding-left 100px
+      &.no-margin
+        margin-right 0px
+      &.notVisible
+        visibility hidden
+        position absolute
+      .passwordField
+        width 50%
+
+.tournament_form_popup
+  background bglight
+  >.popup_content
+    padding 0
+
+
+.view-container.transp
+  .navigationButton.tournament-me
+    color darken(textTransp, 15%)
+    &.activated
+      color inherit
+      background transparent
+      border-color transpWhite02
+      box-shadow 0 0 10px rgba(255,255,255,0.4)

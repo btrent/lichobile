@@ -1,0 +1,374 @@
+.analyseSettings
+  font-size 0.9em
+  label[for='showComments']
+    text-transform capitalize
+
+  .ceval-multipv
+    display flex
+    justify-content space-between
+    > .slider
+      width 30%
+      height 20px
+
+.analyse-table, .explorerTable
+  flex 1 1 auto
+  display flex
+
+.analyse-table
+  position relative
+
+.analyse-header
+  background-color headerBgDark
+  flex 0 0 25px
+  overflow hidden
+  display flex
+  flex-flow row nowrap
+  align-items center
+  align-content center
+
+.analyse-tabs
+  flex 1 1 auto
+  display flex
+  flex-flow row nowrap
+  align-items center
+  justify-content space-between
+  font-size 0.9em
+  min-width 0 // fix white-space nowrap
+  > .tab-title
+    flex 1 1 auto
+    padding 0 0.5em
+    overflow hidden
+    white-space nowrap
+    > div
+      overflow hidden
+      text-overflow ellipsis
+  > .tabs-navigation
+    background inherit
+    flex 0 0 auto
+    height 25px
+    > .tab-button
+      padding 0 0.5em
+      height 25px
+
+.analyse-tableWrapper
+  margin-top 2px
+  flex 1 1 auto
+  display flex
+  flex-flow column nowrap
+  min-width 0 // fix width bug on landscape
+  @media only screen and (orientation: landscape)
+    margin-top 0
+
+.analyse-table
+  flex-flow column nowrap
+  font-size 0.9em
+  overflow hidden
+
+.analyse-tabsContent
+  background lighten(bgdark, 5%)
+  flex 1 1 auto
+  > .tab-content
+    // must not have height, use flex to stretch content to the max height instead
+    height initial
+    display flex
+    > div
+      width 100%
+    > .native_scroller
+      // same: let flex compute height
+      height initial
+    @media only screen and (orientation: landscape)
+      width 'calc(100vw - 100vh + %s)' % headerHeight
+
+.analyse_actions_bar
+  flex 0 0 40px
+  display flex
+  padding 0
+  height initial
+  width 100%
+  overflow hidden
+
+.analyse-infosBox
+  flex 1 1 40%
+  display flex
+  flex-flow column nowrap
+  > .native_scroller
+    flex 1 1 auto
+
+.analyse-loadingReplay
+  flex 1 1 auto
+  display flex
+  justify-content center
+  align-items center
+  > .spinner
+    width 40px
+    height 40px
+
+.analyse-replayWrapper
+  display: flex
+  flex-flow column nowrap
+  > .native_scroller
+    // flex height
+    height initial
+
+.analyse-fixedBar
+  background-color lighten(headerBgDark, 5%)
+  flex 0 0 25px
+  display flex
+  padding 0 10px
+  flex-flow row nowrap
+  justify-content space-between
+  align-items center
+
+.analyse-replay
+  flex 1 1 auto
+  position relative
+  font-size 0.9rem
+  white-space normal
+  line-height 1.05em
+  &.displayPieces
+    move
+      font-family ChessSansPiratf
+
+.analyse-checkCount
+  > span:first-child
+    margin-right 0.5em
+
+.analyse-openingBox
+  line-height 25px
+  padding 0 4px
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size 0.75em
+  background lighten(bgdark, 5%)
+
+.analyse-moveList
+  padding 5px
+  white-space normal
+  &.ios
+    comment
+      vertical-align initial
+
+index
+  color rgba(textDarkBg, 50%)
+  margin-right 0.2em
+
+move
+  display inline-block
+  padding: 0.25em 0.17em
+  overflow hidden
+  white-space nowrap
+  &.current, &.active
+    border-radius 3px
+  &.current
+    color #fff
+    background rgba(blue, 0.8)
+    font-weight normal
+    > index
+      color #fff
+  &.active
+      background lighten(bgdark, 10%)
+
+glyph
+  font-size 0.85em
+  margin-left 0.2em
+
+eval
+  text-align right
+  font-size 0.65em
+  font-weight lighter
+  color rgba(textDarkBg, 75%)
+
+interrupt
+  font-size 0.9em
+
+lines
+  display block
+  border-left 2px solid rgba(textDarkBg, 80%)
+
+line
+  display block
+  &:before
+    display inline-block
+    margin-bottom 5px
+    content: ' '
+    border-top: 2px solid rgba(textDarkBg, 80%)
+    width: 6px
+    height: 6px
+  &.visiting
+    white-space normal
+  > move
+    color rgba(textDarkBg, 0.7)
+  > .nested
+    margin-left 5px
+
+inline
+  display: inline;
+  font-style: italic;
+  font-size: 0.9em;
+  opacity: 0.8;
+  &:before, &:after
+    vertical-align 45%
+  &:before
+    content: '(';
+    margin-left: 2px;
+  &:after
+    content: ')';
+    margin-right: 2px;
+
+comment
+  display inline
+  font-size 0.8em
+  color rgba(textDarkBg, 0.8)
+  margin 0 0.2em 0 0.1em
+  word-wrap break-word
+  vertical-align 45%
+
+.analyse-engine_info
+  flex 1 0
+  font-size 0.65em
+  padding 3px
+  overflow hidden
+  opacity 0.8
+  > p
+    white-space nowrap
+    overflow hidden
+    text-overflow ellipsis
+
+.analyse-gameInfos
+  display flex
+  flex-flow column nowrap
+  justify-content flex-start
+  align-items center
+  padding 2em 1em
+  width 100%
+  > .gameInfos
+    font-size 0.9em
+  > .status
+    font-size 0.9em
+    margin-top 5px
+  > .analyse-tournamentInfo
+    margin-top 5px
+
+.analyseOpponent
+  text-align left
+  margin-bottom 0.5em
+
+.analyseClock
+  font-family Cousine
+  font-size 0.9em
+  > span
+    margin-left 5px
+
+.analysePlayerName
+  overflow hidden
+  text-overflow ellipsis
+
+.variationMenuPopup
+  font-size 1rem
+  height 100px
+  top calc((100% - 100px) / 2)
+  border-radius 5px
+  text-align center
+  .variationMenu
+    display flex
+    flex-flow column nowrap
+    justify-content center
+    height 100%
+
+.view-container.light
+  .analyse-fixedBar
+    background-color bglight
+
+  .analyse-header
+    background-color #444
+
+  .analyse-tabsContent
+    background #fff
+
+  .ceval-curEval
+    background #3c3c3c
+    color headerBgDarkColor
+
+  .analyse-tabs
+    color darken(headerBgDarkColor, 5%)
+
+  comment
+    color rgba(textLightBg, 0.5)
+
+  index
+    color rgba(textLightBg, 0.5)
+
+  move
+    color inherit
+    &.active
+      background darken(bglight, 10%)
+    &.current
+      background blue
+      color #fff
+      > index
+        color #fff
+
+  line > move
+    color rgba(textLightBg, 0.7)
+
+  .analyse-openingBox
+    background darken(bglight, 5%)
+
+  .analyse_variant_selector
+    background: themeBgLight
+    text-shadow: 0 1px 0 #FFF;
+    color: #848484;
+
+.view-container.transp
+
+  .analyse-fixedBar
+    background-color transpBlack02
+
+  .analyse-header
+    background-color transpBlack06
+
+  .analyse-tabsContent
+    background-color transpBlack05
+
+  .analyse-tabs
+    > .tabs-navigation
+      background-color initial
+
+  .analyse_variant_selector.select_input
+    > label:after
+      color rgba(textTransp, 0.7)
+    background transparent
+
+  move
+    color textTransp
+    &.current
+      background-color transpWhite05
+      color #fff
+    &.active
+      background-color transpWhite01
+
+  line > move
+    color rgba(textTransp, 0.7)
+
+  index
+    color transpWhite04
+
+  comment
+    color transpWhite05
+
+  .analyse-cevalBox, .analyse-infosBox
+    background transpBlack03
+
+  .ceval-curEval
+    background transparent
+    border-right 1px solid transpWhite01
+
+  .analyse-engine_info
+    padding-left 5px
+
+  .analyse-openingBox
+    background rgba(255,255,255,0.1)
+
+  .analyse_actions_bar
+    background transpBlack06

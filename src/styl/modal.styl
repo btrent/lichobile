@@ -1,0 +1,59 @@
+.modal
+  position absolute
+  top 0
+  left 0
+  z-index 111
+  width 100%
+  height 100%
+  min-height 100%
+  overflow hidden
+  background-color #fff
+  > header
+    position absolute
+    z-index 112
+    // ios hack
+    transform translateZ(0)
+    top 0
+    left 0
+    width 100%
+    height headerHeight
+    background #fff
+    border-bottom solid 1px #E1E1E1
+    color textDarkGray
+    > h2
+      font-size 1.1em
+      text-align center
+      line-height headerHeight
+
+.modal_close
+  position absolute
+  right 0
+  top 0
+  padding 10px
+  background transparent
+  font-size 24px
+  line-height 22.5px
+  height headerHeight
+
+.modal_content
+  background bglight
+  color textDarkGray
+  height 100%
+  padding-top headerHeight
+  overflow-y auto
+  -webkit-overflow-scrolling touch
+  p
+    margin 1em 15px 0
+
+// overrides light theme style
+.modal_content
+  .submitButton
+    background linear-gradient(to bottom, #eee 0%, #d5d5d5 100%)
+    text-shadow: 0 1px 0 #FFF;
+    padding 8px 12px
+    border 1px solid #ccc
+    color: textMediumGray
+    font-size 1.2em
+    font-weight bold
+    &.active,&:active
+      background linear-gradient(to bottom, #f6f6f6 0%, #e6e6e6 100%)

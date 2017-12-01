@@ -1,41 +1,21 @@
-lichess mobile
-==============
+[lichess.org/mobile](http://lichess.org/mobile)
+--------------------
 
-![lichess mobile screenshots](screens/3-screens.png)
+![lichess mobile screenshots](res/3-screens.png)
 
-### Official lichess.org mobile application for Android & iOS.
-
-- Play bullet, blitz, classical, and correspondence chess
-- Play in arena tournaments
-- Find, follow, challenge players
-- See your games stats
-- Practice with chess puzzles
-- Many variants, available online and offline: Crazyhouse, Chess 960, King Of The Hill, Three-check, Antichess, Atomic chess, Horde, Racing Kings!
-- Game analysis with local computer evaluation
-- Play against offline computer
-- Over The Board mode to play offline with a friend
-- Standalone chess clock with multiple time settings
-- Board editor
-- Available in 80 languages
-- Designed for both phones and tablets, supporting landscape mode
-- 100% free, without ads, and opensource!
-
-Get it now from [lichess.org/mobile](http://lichess.org/mobile)
-
-Lichess mobile is written in JavaScript (ES6), with the help of [cordova](https://cordova.apache.org/)
-and [mithril.js](http://mithril.js.org/). It uses [babel](http://babeljs.io/),
-[browserify](http://browserify.org/), [gulp](http://gulpjs.com/) and [tarifa](http://tarifa.tools/)
-as build tools. It talks to a native [Stockfish](https://stockfishchess.org/) interface through a
-[cordova plugin](https://github.com/veloce/cordova-plugin-stockfish) and uses
-an [async chess worker](https://github.com/veloce/scalachessjs) which is based
-on [lichess scalachess module](https://github.com/ornicar/scalachess) compiled
-to JavaScript.
+Lichess mobile is a [cordova](https://cordova.apache.org/) application that runs
+on the [crosswalk webview](https://crosswalk-project.org/). It is written
+in [TypeScript](http://www.typescriptlang.org/) and JavaScript. The rendering
+library is [mithril.js](http://mithril.js.org/). It uses [babel](http://babeljs.io/),
+[browserify](http://browserify.org/) and [gulp](http://gulpjs.com/)
+as build tools. It talks to a native [Stockfish](https://stockfishchess.org/) engine, [supporting multiple variants](https://github.com/ddugovic/Stockfish), through a
+[cordova plugin](https://github.com/veloce/cordova-plugin-stockfish).
+Multi-variant chess library is brought by [a JavaScript version of scalachess](https://github.com/veloce/scalachessjs).
 
 ## Requirements
 
-* [node](http://nodejs.org) v5.x
-* [gulp](http://gulpjs.com/) version 3.9.x
-* [tarifa](http://tarifa.tools) latest version
+* [node](http://nodejs.org) latest LTS version
+* [cordova](https://cordova.apache.org/) v7.x
 
 **Android:**
 
@@ -49,46 +29,46 @@ to JavaScript.
 
 **iOS:**
 
-* OS X and [Xcode](https://developer.apple.com/xcode/download/) version 7.x
-
-## Init project after checkout
-
-    $ tarifa check --force
-
-This will recreate the cordova folder with android and iOS platforms and also
-install plugins.
+* OS X and [Xcode](https://developer.apple.com/xcode/download/)
 
 ## Build the web application
 
 Make sure you installed all deps:
 
-    $ cd project
     $ npm install
 
-Then copy `project/env.json.example` to `project/env.json` and modify settings
+Then copy `env.json.example` to `env.json` and modify settings
 to link your app to a lichess server.
-
-To build in dev mode:
-
-    $ gulp
 
 To build and watch for changes:
 
-    $ gulp watch
+    $ npm run watch
 
-To run in a browser it needs to have
-web security disabled for loading files and make requests to lichess.
-For mouse interaction you need to use
-[device mode](https://developers.google.com/web/tools/chrome-devtools/iterate/device-mode/)
+## Run the tests
 
-Launch chrome with disabled security under linux
+    $ npm run test
 
-    $ chromium --user-data-dir=$HOME/.chromium_dev_dir --disable-web-security
+## Run in a browser
 
-Launch chrome with disabled security under OSX
+   chromium --user-data-dir=/tmp/lichobile-chrom --disable-web-security ~/lichobile/www/index.html
 
-    $ open -n -a Google\ Chrome --args --disable-web-security --user-data-dir=/Users/myUser/.chrome_dev_dir
+## Build cordova application and run on device
 
+Be sure to check requirements above.
+
+See scripts defined in package.json for various environments.
+
+### Android
+
+Plug your device with USB, or use an emulator. Then:
+
+    $ npm run android-stage
+
+### iOS
+
+Plug your device with USB, or use an emulator. Then:
+
+    $ npm run ios-stage
 
 ## Build stockfish
 
@@ -96,7 +76,7 @@ Launch chrome with disabled security under OSX
 
 Build the native code using:
 ```
-ndk-build -C app/platforms/android
+ndk-build -C platforms/android
 ```
 
 ### iOS
@@ -105,14 +85,6 @@ Through XCode, in the build settings menu:
   * Set `C++ Language Dialect` option to `C++11` value.
   * Set `C++ Standard Library` option to `lib++` value.
 
-## Build and run on your device
+## Advanced setup
 
-Connect your device with USB debugging enabled and:
-
-    $ tarifa run [platform]
-
-This will use the default configuration which use a development lichess server
-end point.
-
-Please look at [tarifa documentation](http://42loops.gitbooks.io/tarifa/content/)
-for further documentation.
+See the [wiki](https://github.com/veloce/lichobile/wiki/Setting-a-lichess-dev-server-for-the-app).

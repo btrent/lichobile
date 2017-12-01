@@ -1,0 +1,157 @@
+#menu-close-overlay
+  height 100%
+  width 100%
+  z-index 99
+  background rgb(0,0,0)
+  opacity 0
+  visibility hidden
+  position absolute
+  top 0
+  left 0
+
+#side_menu
+  background #222
+  color #DFDFDF
+  position absolute
+  visibility hidden
+  top 0
+  bottom 0
+  height 100%
+  min-height 100%
+  max-height 100%
+  width 85%
+  @media only screen and (min-width 500px)
+    width 50%
+  @media only screen and (min-width 960px)
+    width 35%
+  overflow hidden
+  z-index 100
+  box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.3)
+  transform translate3d(-100%, 0,0)
+  section
+    padding 0 15px
+  .login
+    color: #fff;
+    background: #454545;
+    padding: 10px;
+    width: 80%;
+    text-transform: uppercase;
+    margin 10px 0
+    &.active
+      background lighten(#454545, 5%)
+  h3
+    text-transform uppercase
+    color #fff
+    font-weight normal
+    margin 40px 0px 30px 0
+
+.side_menu_header
+  background #1a1a1a
+  color darken(#fff, 8%)
+  text-align center
+  position relative
+  padding 10px 0
+  > .kiddo
+    height 50px
+    width 100%
+    font-size 46px
+    color gold
+  > .username
+    height 60px
+    white-space nowrap
+    width 100%
+    line-height 40px
+    font-size 1.5rem
+    display flex
+    align-items center
+    justify-content center
+    width 100%
+    &.connected
+      justify-content flex-start
+      position relative
+      padding-left 15px
+
+.menu-toggleButton
+  background #282828
+  text-align left
+  padding-left 15px
+  line-height 40px
+  &.side_link
+    margin-top 0
+  &.active
+    background lighten(#353535, 8%)
+
+.pingServerLed
+  margin-left 15px
+  margin-right 50px
+  position relative
+  > .pingServer
+    padding-left 40px
+    color darken(#fff, 40%)
+    white-space nowrap
+    font-size 0.75em
+    text-align left
+    > signal
+      position absolute
+      left 0
+      top 10px
+    .pingKey
+      display inline-block
+      width 45px
+    .pingValue
+      font-family Cousine
+
+.side_links
+  > .hr
+    margin 10px 0
+    border-bottom 1px solid #4c4c4c
+
+.side_link
+  color #bbb
+  padding 10px 0 10px 15px
+  margin 5px 0
+  font-weight bold
+  font-size 0.9em
+  line-height 19px
+  > span
+    color darken(textLightGray, 15%)
+    width 17px
+    font-size 19px
+    margin-right 15px
+  > .menu_icon_game
+    &::before
+      content ''
+      display inline-block
+      width 18px
+      height 18px
+      background url('../../images/icons/game_icon_menu.svg') no-repeat
+  > .highlight
+    color gold
+    font-weight bold
+  &.emptyIcon
+    padding-left 49px
+  &:last-child
+    margin-bottom 10px
+  &.active
+    background lighten(#222, 5%)
+
+.sep_link
+  color #8a8a8a
+  padding 15px 15px 10px
+
+.view-container.transp
+  #side_menu
+    background #111
+
+  .side_menu_header
+    background #000
+
+  .menu-toggleButton
+    background #1b1b1b
+    &.side_link.active
+      background lighten(#1b1b1b, 8%)
+
+  .side_link
+    &.active
+      background lighten(#111, 5%)
+

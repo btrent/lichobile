@@ -1,0 +1,368 @@
+#userProfile
+  display flex
+  flex-flow row wrap
+  align-content flex-start
+  padding 0 10px
+  > section
+    width 100%
+
+.warning
+  font-size 0.9em
+  color orange
+  &:before
+    margin-right 5px
+
+h3.fullname
+  font-weight bold
+  margin-bottom 10px
+
+.user_profile_header
+  margin-bottom 15px
+
+.user-patron
+  margin 10px 0
+  > .fa
+    margin-left 5px
+
+.userTitle
+  color gold
+  font-weight bold
+
+.profileBio
+  margin 10px 0
+  font-style italic
+  word-wrap break-word
+
+.flag
+  height 20px
+  vertical-align bottom
+  margin-right 2px
+
+.onlineStatus, .profile, .userStats
+  margin 10px 0
+
+.profile, .userStats, .user-patron
+  font-size 0.90em
+
+.perfs
+  display flex
+  flex-flow row wrap
+  padding 10px 0
+  font-size 0.95em
+  &:after
+    content none
+
+.profilePerf
+  width 50%
+  text-align left
+  padding 5px 0
+  line-height 1.2em
+  &.active
+    background lighten(bgdark, 5%)
+  &:before
+    color gold
+    font-size 1.2em
+    float left
+    margin-right 5px
+  > .rating
+    color textLightGray
+    font-weight bold
+    display block
+    float left
+    > .progress, & > .nb
+      font-weight normal
+      font-size 0.8em
+      margin-left 0.5em
+    > .progress
+      &.positive
+        color green
+      &.negative
+        color red
+      &::before
+        vertical-align middle
+        margin-right 1px
+    > .nb
+      opacity 0.4
+  > .name
+    display block
+    color gold
+    text-transform uppercase
+    white-space nowrap
+    overflow hidden
+    text-overflow ellipsis
+    float left
+    width 80%
+  &.nav
+    &:after
+      content none
+  @media only screen and (min-width 600px)
+    &:before
+      font-size 2em
+
+#userProfileActions
+  .check_container
+    line-height 30px
+
+.userGamesWrapper
+  height 100%
+
+.select_games_filter
+  margin 0
+  background headerBgDark
+  box-shadow none
+  position relative
+  label
+    &:after
+      position absolute
+      left 10px
+      right initial
+      color labelText
+      font-size 1em
+  select
+    color lighten(labelText, 50%)
+    padding-left 32px
+
+.scroller.games
+  height calc(100% - 40px)
+
+.userGame-loader
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+.userGame
+  display flex
+  padding 10px 0
+  flex-flow row nowrap
+  align-items center
+  background-color bgdark
+  min-height 60px
+  &.withStar
+    > .userGame-infos
+      padding-right 0
+  &.odd
+    background-color lighten(bgdark, 2%)
+  > .iconStar
+    flex 0 0 30px
+    align-self flex-start
+    padding 0
+    color textGray
+    &:before
+      font-size 18px
+  .display_board
+    margin-left 10px
+    flex 0 0 30%
+    height calc(100vw * 0.3)
+  @media only screen and (orientation portrait) and (max-width 320px)
+    .userGame-infos
+      font-size 0.9em
+    .userGame-versus
+      > .variant-icon
+        font-size 1.3em
+  @media only screen and (orientation landscape)
+    .display_board
+      flex 0 0 110px
+      height 110px
+  @media only screen and (orientation landscape) and (min-height 450px)
+    .display_board
+      flex 0 0 150px
+      height 150px
+  @media only screen and (orientation landscape) and (min-height 700px), only screen and (orientation portrait) and (min-width 600px)
+    .display_board
+      flex 0 0 210px
+      height 210px
+    .iconStar
+      right 12px
+      &:before
+        font-size 26px
+    .userGame-infos
+      font-size 1.1em
+      line-height 2em
+    .userGame-meta
+      font-size 1em
+    .userGame-versus
+      > .variant-icon
+        font-size 1.8em
+    .userGame-players
+      font-size 1.3em
+      > .swords
+        font-size 38px
+        width 60px
+      > .player
+        width calc((100% - 60px) / 2)
+    .userGame-status
+      font-size 1em
+      margin 1em 0
+
+.userGame-infos
+  align-self stretch
+  flex 1 1 auto
+  display flex
+  flex-flow column nowrap
+  justify-content space-around
+  padding 0 10px
+
+.userGame-versus
+  display flex
+  flex-flow row nowrap
+  align-items flex-start
+  > .variant-icon
+    font-size 1.5em
+    margin-top 2px
+  > .game-result
+    padding 0 5px
+    line-height 1.1em
+    flex 1 1 auto
+    display flex
+    flex-flow column nowrap
+
+.userGame-players
+  font-size 0.9em
+  > .swords, > .player
+    display inline-block
+    vertical-align middle
+  > .swords
+    width 24px
+    font-size 18px
+    opacity 0.7
+    text-align center
+  > .player
+    width calc((100% - 24px) / 2)
+    white-space nowrap
+    overflow hidden
+    text-overflow ellipsis
+    > .playerName
+      font-weight bold
+    > .playerRating, > .rp
+      font-size 0.8em
+    &.white
+      text-align right
+    &.black
+      text-align left
+
+.userGame-status
+  text-align center
+  margin 0.5em 0
+  font-size 0.6em
+  &.win
+    color green
+  &.loose
+    color red
+
+.userGame-meta
+  font-size 0.65em
+  line-height 1.5em
+  opacity 0.7
+  > .analysis
+    font-size 0.8em
+
+.variantPerfBody
+  width 100%
+  padding 10px 10px 0
+  font-size 0.85em
+  .empty
+    display none
+
+.variantPerf-graph
+  margin-bottom 0.5em
+  text
+    fill textMediumGray
+  line, .domain
+    stroke textMediumGray
+  .path
+    stroke gold
+  .legend
+    fill gold
+
+table.variantPerf
+  width 100%
+
+.variantPerfHeading
+  text-align left
+  font-weight bold
+  color gold
+
+th.variantPerf
+  text-align left
+  font-weight normal
+
+td.variantPerf
+  text-align right
+  > .progress
+    &.positive
+      color green
+    &.negative
+      color red
+
+td.variantPerfSpacer
+  height 10px
+
+th.variantPerfMemo
+  text-align left
+  font-weight normal
+  padding-left 10px
+  font-style italic
+
+td.variantPerfMemo
+  text-align right
+  font-style italic
+
+.variantPerfGames
+  > .nav
+    padding 15px 0
+
+.followingPlayerTitle
+  display flex
+  justify-content space-between
+  font-size 1.1em
+  font-weight bold
+  margin-bottom 15px
+
+.followingPlayerItem
+  margin-top 10px
+  > div > label
+    width 100%
+
+.followingPlayerAction
+  margin-top 2px
+  padding 10px 0
+  line-height 20px
+  &.active
+    background lighten(bgdark, 5%)
+
+.followingListEmpty
+  width 100%
+  height 100%
+  display flex
+  justify-content center
+  align-items center
+  font-size 1.1em
+
+.moreFollow
+  display flex
+  justify-content center
+  align-items center
+  min-height 50px
+  padding 0
+  font-size 1.5em
+
+.view-container.transp
+  .userGame
+    background transpBlack02
+    &.odd
+      background transpWhite01
+
+  .iconStar, .profilePerf > .rating
+    color textTransp
+
+  #userProfileRatings
+    background transpBlack04
+    margin 10px 0
+    padding-left 10px
+    padding-right 10px
+
+  .variantPerf-graph
+    background-color rgba(0,0,0,0.6)
+    width 100%
+

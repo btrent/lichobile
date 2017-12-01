@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget android-versionCode="500200" id="org.lichess.mobileapp" version="5.2.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>lichess</name>
+    <description>lichess.org mobile application</description>
+    <author email="vincent.velociter@gmail.com" href="https://github.com/veloce/lichobile">Vincent Velociter</author>
+    <content src="index.html" />
+    <access origin="https://lichess.org" />
+    <access origin="https://*.lichess.org" />
+    <access origin="https://sentry.io" />
+    <access origin="https://veloce.github.io" />
+    <access origin="https://listage.ovh" />
+    <icon src="res/icon.png" />
+    <hook src="scripts/link_locales.js" type="before_prepare" />
+    <platform name="android">
+        <hook src="scripts/android/copy_icons.js" type="after_prepare" />
+        <hook src="scripts/android/add_to_manifest.js" type="after_prepare" />
+        <hook src="scripts/android/remove_permissions.js" type="after_prepare" />
+        <icon density="ldpi" src="res/android/icons/icon-36.png" />
+        <icon density="mdpi" src="res/android/icons/icon-48.png" />
+        <icon density="hdpi" src="res/android/icons/icon-72.png" />
+        <icon density="xhdpi" src="res/android/icons/icon-96.png" />
+        <icon density="xxhdpi" src="res/android/icons/icon-144.png" />
+        <icon density="xxxhdpi" src="res/android/icons/icon-192.png" />
+        <splash density="land-ldpi" src="res/android/screens/drawable-land-ldpi/screen.png" />
+        <splash density="land-mdpi" src="res/android/screens/drawable-land-mdpi/screen.png" />
+        <splash density="land-hdpi" src="res/android/screens/drawable-land-hdpi/screen.png" />
+        <splash density="land-xhdpi" src="res/android/screens/drawable-land-xhdpi/screen.png" />
+        <splash density="land-xxhdpi" src="res/android/screens/drawable-land-xxhdpi/screen.png" />
+        <splash density="land-xxxhdpi" src="res/android/screens/drawable-land-xxxhdpi/screen.png" />
+        <splash density="port-ldpi" src="res/android/screens/drawable-ldpi/screen.png" />
+        <splash density="port-mdpi" src="res/android/screens/drawable-mdpi/screen.png" />
+        <splash density="port-hdpi" src="res/android/screens/drawable-hdpi/screen.png" />
+        <splash density="port-xhdpi" src="res/android/screens/drawable-xhdpi/screen.png" />
+        <splash density="port-xxhdpi" src="res/android/screens/drawable-xxhdpi/screen.png" />
+        <splash density="port-xxxhdpi" src="res/android/screens/drawable-xxxhdpi/screen.png" />
+    </platform>
+    <platform name="ios">
+        <hook src="scripts/ios/modify_plist.js" type="after_prepare" />
+        <preference name="Orientation" value="all" />
+        <icon height="180" src="res/ios/icons/icon-60@3x.png" width="180" />
+        <icon height="60" src="res/ios/icons/icon-60.png" width="60" />
+        <icon height="120" src="res/ios/icons/icon-60@2x.png" width="120" />
+        <icon height="76" src="res/ios/icons/icon-76.png" width="76" />
+        <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152" />
+        <icon height="40" src="res/ios/icons/icon-40.png" width="40" />
+        <icon height="80" src="res/ios/icons/icon-40@2x.png" width="80" />
+        <icon height="57" src="res/ios/icons/icon.png" width="57" />
+        <icon height="114" src="res/ios/icons/icon@2x.png" width="114" />
+        <icon height="72" src="res/ios/icons/icon-72.png" width="72" />
+        <icon height="144" src="res/ios/icons/icon-72@2x.png" width="144" />
+        <icon height="29" src="res/ios/icons/icon-small.png" width="29" />
+        <icon height="58" src="res/ios/icons/icon-small@2x.png" width="58" />
+        <icon height="50" src="res/ios/icons/icon-50.png" width="50" />
+        <icon height="100" src="res/ios/icons/icon-50@2x.png" width="100" />
+        <icon height="167" src="res/ios/icons/icon-83.5@2x.png" width="167" />
+        <splash height="480" src="res/ios/screens/Default~iphone.png" width="320" />
+        <splash height="960" src="res/ios/screens/Default@2x~iphone_640x960.png" width="640" />
+        <splash height="1024" src="res/ios/screens/Default-Portrait~ipad_768x1024.png" width="768" />
+        <splash height="2048" src="res/ios/screens/Default-Portrait@2x~ipad_1536x2048.png" width="1536" />
+        <splash height="768" src="res/ios/screens/Default-Landscape~ipad_1024x768.png" width="1024" />
+        <splash height="1536" src="res/ios/screens/Default-Landscape@2x~ipad_2048x1536.png" width="2048" />
+        <splash height="1136" src="res/ios/screens/Default-568h@2x~iphone_640x1136.png" width="640" />
+        <splash height="1334" src="res/ios/screens/Default-750@2x~iphone6-portrait_750x1334.png" width="750" />
+        <splash height="2208" src="res/ios/screens/Default-1242@3x~iphone6s-portrait_1242x2208.png" width="1242" />
+        <splash height="1242" src="res/ios/screens/Default-1242@3x~iphone6s-landscape_2208x1242.png" width="2208" />
+    </platform>
+    <preference name="Orientation" value="default" />
+    <preference name="SuppressesLongPressGesture" value="true" />
+    <preference name="EnableViewportScale" value="false" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="FadeSplashScreen" value="false" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="10000" />
+    <preference name="KeepRunning" value="true" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarBackgroundColor" value="#111111" />
+    <preference name="BackgroundColor" value="0xFF000000" />
+    <preference name="xwalkVersion" value="23" />
+    <preference name="xwalkCommandLine" value="--enable-viewport-meta --disable-pull-to-refresh-effect" />
+    <preference name="android-minSdkVersion" value="19" />
+    <preference name="xwalkMode" value="embedded" />
+    <preference name="xwalkMultipleApk" value="true" />
+    <preference name="AndroidLaunchMode" value="singleInstance" />
+    <universal-links>
+        <host name="lichess.org" scheme="https">
+            <path event="analysis" url="/analysis" />
+            <path event="challenge" url="/challenge/*" />
+            <path event="editor" url="/editor" />
+            <path event="inbox" url="/inbox" />
+            <path event="inboxNew" url="/inbox/new" />
+            <path event="players" url="/player" />
+            <path event="tournamentDetail" url="/tournament/*" />
+            <path event="tournamentList" url="/tournament" />
+            <path event="training" url="/training" />
+            <path event="trainingProblem" url="/training/*" />
+            <path event="tv" url="/tv" />
+            <path event="tvChannel" url="/tv/*" />
+            <path event="userVariantProfile" url="/@/*/perf/*" />
+            <path event="userProfile" url="/@/*" />
+            <path event="signupConfirm" url="/signup/confirm/*" />
+            <path event="other" url="*" />
+        </host>
+    </universal-links>
+    <engine name="android" spec="^6.2.3" />
+    <engine name="ios" spec="~4.5.1" />
+    <plugin name="com.rjfun.cordova.plugin.lowlatencyaudio" spec="https://github.com/veloce/cordova-plugin-nativeaudio.git#old_interface" />
+    <plugin name="cordova-plugin-appversion" spec="^1.0.0" />
+    <plugin name="cordova-plugin-crosswalk-webview" spec="^2.3.0">
+        <variable name="XWALK_MODE" value="embedded" />
+        <variable name="XWALK_MULTIPLEAPK" value="true" />
+        <variable name="XWALK_VERSION" value="23+" />
+        <variable name="XWALK_LITEVERSION" value="xwalk_core_library_canary:17+" />
+        <variable name="XWALK_COMMANDLINE" value="--disable-pull-to-refresh-effect" />
+    </plugin>
+    <plugin name="cordova-plugin-device" spec="^1.1.7" />
+    <plugin name="cordova-plugin-dialogs" spec="^1.3.4" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
+    <plugin name="cordova-plugin-fullscreen" spec="^1.1.0" />
+    <plugin name="cordova-plugin-globalization" spec="^1.0.8" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^1.6.1" />
+    <plugin name="cordova-plugin-insomnia" spec="^4.2.0" />
+    <plugin name="cordova-plugin-network-information" spec="^1.3.4" />
+    <plugin name="cordova-plugin-splashscreen" spec="^4.0.3" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.2.3" />
+    <plugin name="cordova-plugin-vibration" spec="^2.1.6" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
+    <plugin name="cordova-plugin-x-socialsharing" spec="^5.1.8" />
+    <plugin name="cordova-plugin-x-toast" spec="^2.5.2" />
+    <plugin name="cordova-universal-links-plugin" spec="^1.2.1" />
+    <plugin name="ionic-plugin-keyboard" spec="^2.2.1" />
+    <plugin name="onesignal-cordova-plugin" spec="^2.0.11" />
+    <plugin name="cordova-plugin-app-event" spec="git+https://github.com/katzer/cordova-plugin-app-event.git#1.2.1" />
+    <plugin name="de.appplant.cordova.plugin.local-notification" spec="git+https://github.com/katzer/cordova-plugin-local-notifications.git#0.8.5" />
+    <plugin name="cordova-plugin-stockfish" spec="git+https://github.com/veloce/cordova-plugin-stockfish.git#v1.5.0" />
+</widget>

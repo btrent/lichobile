@@ -1,0 +1,520 @@
+.header-gameTitle
+  > .kiddo
+    margin-right 5px
+    font-size 20px
+  > .fa-trophy
+    margin-right 2px
+
+.header-subTitle
+  > .swords
+    padding 0 0.5em
+    font-size 0.8em
+
+.playTable
+  position relative
+  height "calc((100% - 100vw - %s) / 2)" % footerHeight
+  padding 0 10px
+  display flex
+  justify-content space-between
+  align-items center
+  overflow hidden
+  &.crazy
+    padding 0
+  @media only screen and (orientation: portrait) and (aspect-ratio 3/4), (orientation: portrait) and (device-aspect-ratio 3/4)
+    height "calc((100% - 98vw - %s) / 2)" % footerHeight
+    width 98vw
+    margin 0 auto
+  @media only screen and (orientation: landscape)
+    flex 1 0 auto
+    padding 0
+    height initial
+    &.crazy
+      > .antagonistInfos
+        order 2
+      > .pocket
+        order 1
+
+.round-expiration
+  position: absolute;
+  left: 0
+  width: 100%
+  text-align: center
+  font-size 0.9em
+  color: #fff
+  z-index: 50
+  &.player
+    top: 0
+  &.opponent
+    bottom 0
+  > .countdown-timer
+    padding: 5px
+    font-weight normal
+    font-family inherit
+    display block
+    height 100%
+    width 100%
+    background: rgba(#b3b3b3, 0.8)
+    > strong
+      font-family Cousine
+    &.emerg
+      background: rgba(#dc322f, 0.8)
+
+.replay
+  flex 0 0 auto
+  height 250px
+  overflow hidden
+  @media only screen and (orientation: landscape)
+    padding 0
+  @media only screen and (orientation: landscape) and (max-height 450px)
+    height 100px
+  @media only screen and (orientation: landscape) and (min-height 450px)
+    height 150px
+  @media only screen and (orientation: landscape) and (min-height 550px)
+    height 200px
+  @media only screen and (orientation: landscape) and (min-height 700px)
+    height 300px
+  @media only screen and (orientation: landscape) and (min-height 800px)
+    height 400px
+
+.gameMovesList
+  height 100%
+  width 100%
+  background lighten(bgdark, 3%)
+  >.moves
+    border-collapse collapse
+    border-spacing 0px
+    width 100%
+    &.displayPieces
+      .replayMove
+        font-family ChessSansPiratf
+
+.replayMoveIndex, .replayMove
+  vertical-align middle
+  padding 0
+  height 30px
+  @media only screen and (orientation: landscape) and (max-height 400px)
+    height 20px
+  @media only screen and (orientation: landscape) and (max-height 500px)
+    height 25px
+
+.replayMoveIndex
+  width: 15%;
+  text-align: center;
+
+.replayMove
+  transition: background-color 0.13s ease 0s;
+  width 42.5%
+  &.current
+    color orangeDark
+    font-weight bold
+  &.active
+    background-color lighten(bgdark, 8%)
+
+.rp.null
+  color textGray
+.rp.up
+  color green
+.rp.down
+  color red
+
+.antagonistInfos
+  max-width calc(100% - 120px)
+  overflow hidden
+  .rating
+    font-size 0.9em
+    color gold
+    display inline-block
+    vertical-align top
+    margin-right 10px
+  .ratingAndMaterial
+    display flex
+    height 18px
+    margin-top 2px
+  &.zen
+    > .antagonistUser
+      visibility hidden
+    > .ratingAndMaterial
+      visibility hidden
+  &.active
+    background-color lighten(bgdark, 8%)
+  &.offline
+    max-width 100%
+  &.crazy
+    width calc(100vw / 8 * 3)
+    max-width calc(100vw / 8 * 3)
+    padding 0 10px
+    .ratingAndMaterial
+      height inherit
+    > .clock
+      display inline-block
+      font-size 22px
+      text-align left
+      margin-top 2px
+      &.correspondence
+        font-size 13px
+  @media only screen and (min-width 600px)
+    max-width calc(100% - 160px)
+    .ratingAndMaterial
+      height 25px
+  @media only screen and (orientation: landscape)
+    &.crazy
+      width 'calc((100vh - %s) / 8 * 3)' % headerHeight
+      max-width 'calc((100vh - %s) / 8 * 3)' % headerHeight
+  @media only screen and (min-width 600px)
+    &.crazy
+      > .antagonistUser
+        font-size 1em
+  @media only screen and (orientation landscape)
+    .ratingAndMaterial
+      height 16px
+  @media only screen and (orientation landscape) and (min-width 600px)
+    .ratingAndMaterial
+      height 18px
+  @media only screen and (orientation landscape) and (min-width 801px)
+    .ratingAndMaterial
+      height 20px
+    .rating
+      display block
+      margin 0.2rem 0 0.5rem
+  @media only screen and (min-width 1025px) and (orientation landscape)
+    .ratingAndMaterial
+      height 22px
+
+.antagonistUser
+  overflow hidden
+  text-overflow ellipsis
+  font-weight bold
+  font-size 1.1em
+  white-space nowrap
+  color textLightGray
+  > .status
+    font-size 18px
+    margin-right 5px
+    &.ongame
+      color green
+    &.offgame
+      opacity 0.6
+  @media only screen and (orientation landscape)
+    font-size 1em
+  @media only screen and (orientation portrait) and (min-width: 600px)
+    font-size 1.2rem
+
+.clock
+  transform translateZ(0)
+  max-width 120px
+  font-family Cousine
+  text-align right
+  font-size 30px
+  padding 4px 5px 2px
+  line-height 1
+  color #8c8c8c
+  background-color #262626
+  > seph
+    opacity 0.7
+  > sepl
+    opacity 0.15
+  > tens
+    font-size 0.8em
+  &.running
+    background-color #505a60
+    color #fff
+  &.berserk
+    color #e35d5b
+  &.emerg
+    background-color #a00000
+    color #d0d0d0
+    &.running
+      color #fff
+  &.correspondence
+    font-size 18px
+    &.offline
+      color #8c8c8c
+  @media only screen and (min-width: 600px)
+    font-size 35px
+    padding 8px 10px 4px
+    max-width 160px
+
+.checkCount
+  font-size 0.8em
+  font-weight bold
+
+.tomb
+  margin-left 6px
+  piece
+    position initial
+    margin-left -6px
+    width 18px
+    height 18px
+    margin-top -5px
+    background-size cover
+    display inline-block
+  .pawn
+    background-image url(../../images/pieces/mono/P.svg)
+  .bishop
+    background-image url(../../images/pieces/mono/B.svg)
+  .knight
+    background-image url(../../images/pieces/mono/N.svg)
+  .rook
+    background-image url(../../images/pieces/mono/R.svg)
+  .queen
+    background-image url(../../images/pieces/mono/Q.svg)
+  .king
+    background-image url(../../images/pieces/mono/K.svg)
+  @media only screen and (min-width 960px) and (orientation landscape)
+    piece
+      width 25px
+      height 25px
+
+#promotion_choice
+  border 1px solid black
+  background-color rgba(255,255,255, 0.7)
+  position absolute
+  top calc((100vh - 100px) / 2)
+  height 100px
+  width 100%
+  text-align center
+  piece
+    position relative
+    display inline-block
+    width 60px
+    height 60px
+    margin 0 5px
+    top 17px
+
+.tableHeader
+  display flex
+  justify-content flex-start
+  align-items center
+  padding 0 10px
+
+.tableHeader, .player_controls
+  .star
+    width 25px
+    height 25px
+    padding 0
+    font-size 25px
+    margin-left 10px
+    line-height 33px
+    &:before
+      margin-right 0
+  .icon-game
+    flex 0 0 auto
+    font-size 33px
+  .game-title
+    flex 0 0 auto
+    line-height 20px
+    margin-left 10px
+    text-align left
+    text-transform uppercase
+  .perf
+    padding 7px 0
+    &.active
+      background-color darken(#fff, 5%)
+
+.player_controls
+  &.overlay_popup > header
+    line-height initial
+    padding 10px
+    white-space normal
+  button
+    &.draw-yes:before
+      display inline-block
+      transform rotate(-90deg)
+    &.on
+      background-color darken(#fff, 15%)
+  .negotiation, .force_resign_zone
+    background-color selectBg
+    text-align center
+    padding 10px
+    button
+      background-color #fff
+      &.active
+        background-color darken(#fff, 3%)
+      &.binary_choice[data-icon=E]
+        border-right 1px solid selectBg
+      &:not(.binary_choice):last-child
+        width 50%
+        margin 0 auto
+        border-radius 3px
+    .binary_choice_wrapper
+      display flex
+      flex-flow row no-wrap
+      > .binary_choice
+        float initial
+  .notice
+    margin 5px 0
+
+.negotiationIcons
+  background-color #eee
+  height 70px
+  display flex
+  padding 0 10px
+  align-items center
+  border-radius 5px
+  > p
+    flex: 1 1 auto;
+    margin-right: 10px;
+  > button
+    flex: 0 0 50px;
+    height: 50px;
+    line-height: 44px;
+    font-size: 25px;
+    background: #fff;
+    padding 0
+    &.accept
+      color: green
+      margin-right 10px
+      border-radius: 3px 0 0 3px;
+      &.active
+        background green
+        color #fff
+    &.decline
+      color: red
+      border-radius: 0 3px 3px 0;
+      &.active
+        background red
+        color #fff
+
+.player_controls, .offline_actions, .playersTable
+  .result
+    padding 0 10px
+    text-align center
+    margin 1em 0
+  .resultStatus
+    font-size 0.9em
+
+.submitMovePopup
+  background-color rgba(0,0,0,0.1)
+  > .overlay_popup
+    position absolute
+    left 7.5%
+    top "calc(100vh - %s - ((100vh - 100vw) / 2) / 2)" % footerHeight
+    @media only screen and (orientation: landscape)
+      top calc((100vh - 70px) / 2)
+      left initial
+      right 1vw
+      width 'calc(100vw - 100vh + %s - 2vw)' % headerHeight
+    @media only screen and (orientation: landscape) and (aspect-ratio 4/3), (orientation: landscape) and (device-aspect-ratio 4/3), (orientation landscape) and (device-aspect-ratio 3/4)
+      width 'calc(100vw - 100vh + %s + 12vh - 2vw)' % headerHeight
+    // tablets
+    @media only screen and (orientation portrait) and (min-width 500px)
+      left 20%
+    @media only screen and (orientation portrait) and (min-width 600px)
+      left 22.5%
+    @media only screen and (orientation portrait) and (min-width 700px)
+      left 25%
+    @media only screen and (orientation portrait) and (min-width 800px)
+      left 27.5%
+    @media only screen and (orientation portrait) and (min-width 900px)
+      left 30%
+    border-radius 5px
+    button
+      &:first-child
+        border-radius 5px 0 0 5px
+      &:last-child
+        border-radius 0 5px 5px 0
+
+
+.player_controls
+  button.berserk
+    margin-bottom 10px
+
+.notesTextarea, #notesTextarea
+  background-color transparent
+  width 100%
+  height 100%
+  border none
+  padding 15px
+  &.loading
+    display flex
+    align-items center
+
+.pocket
+  width calc(100vw / 8 * 5)
+  height calc(100vw / 8 + 10px)
+  max-height "calc((100vh - 100vw - %s - %s) / 2)" % (headerHeight footerHeight)
+  background #cdcdcd
+  white-space nowrap
+  overflow hidden
+  display flex
+  flex-flow row nowrap
+  align-items center
+  justify-content space-around
+  @media only screen and (orientation: landscape)
+    height 'calc((100vh - %s) / 8 + 10px)' % headerHeight
+    max-width 60%
+    max-height 55px
+  @media only screen and (orientation: landscape) and (aspect-ratio 4/3), (orientation: landscape) and (device-aspect-ratio 4/3), (orientation landscape) and (device-aspect-ratio 3/4)
+    height 'calc((100vh - %s - 12vh) / 8 + 10px)' % headerHeight
+
+.pocket > piece
+  width calc(100vw / 8)
+  height calc(100vw / 8)
+  max-width "calc((100vh - 100vw - %s - %s) / 2)" % (headerHeight footerHeight)
+  max-height "calc((100vh - 100vw - %s - %s) / 2)" % (headerHeight footerHeight)
+  background-position center
+  background-size contain
+  position relative
+  &:after
+    content: attr(data-nb);
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    line-height: 0.9em
+    padding: 3px 5px 4px 5px;
+    font-weight: bold;
+    border-radius: 2px;
+    font-size: 0.9em
+    color: #fff
+    text-shadow: 0 1px 0 #000
+    background orange
+    border-color: #b84400
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15) inset
+  &:first-child
+    border-radius: 3px 0 0 3px;
+  @media only screen and (orientation portrait) and (min-width 600px)
+    &:after
+      font-size 22px
+      line-height 22px
+      padding 3px 5px 4px 5px
+      right 3px
+      bottom 3px
+  @media only screen and (orientation: landscape)
+    width 'calc((100vh - %s) / 8)' % headerHeight
+    height 'calc((100vh - %s) / 8)' % headerHeight
+    max-width 50px
+    max-height 50px
+
+.pocket > piece[data-nb='0']
+  opacity: 0.1;
+  &:after
+    content none
+
+.view-container.light
+  .pocket
+    background #aaa
+  .antagonistUser
+    color textDarkGray
+
+.view-container.transp
+  .pocket
+    background transpWhite05
+  .clock
+    color rgba(#8c8c8c, 0.6)
+    &.running
+      color #fff
+    &.emerg
+      background-color rgba(#a00000, 0.6)
+      color #d0d0d0
+      &.running
+        color #fff
+  .gameMovesList
+    background transpBlack04
+
+.action_bar_button
+  &[data-icon='2']:before
+    display inline-block
+    transform rotate(-90deg)
+
+.round-tvChannelSelector
+  font-size 1em

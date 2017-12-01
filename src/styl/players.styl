@@ -1,0 +1,128 @@
+#searchPlayersModal
+  color textDarkBg
+  > header
+    background headerBgDark
+    border-bottom-style none
+    display flex
+    justify-content space-between
+    > .main_header_drop_shadow
+      bottom -2px
+    > button
+      color lighten(textDarkBg, 25%)
+      > .svg-icon-wrapper
+        width 24px
+        height 24px
+        position relative
+      margin 0
+      &.active
+        background lighten(bgdark, 8%)
+  > .modal_content
+    color textDarkBg
+    background bgdark
+
+.search_input
+  position relative
+  width calc(100% - 70px)
+  margin 0 auto
+  height headerHeight
+  > input
+    background transparent
+    color textDarkBg
+    width 100%
+    height 100%
+    border none
+    outline none
+    margin 0
+    padding 0
+    &::placeholder
+      opacity 0.6
+
+.playerSuggestion
+  display flex
+  justify-content space-between
+  padding-right 35px
+  > .rating:before
+    font-size 1.2em
+    vertical-align bottom
+    margin-right 1px
+
+#allRanking
+  display flex
+  flex-flow row wrap
+  justify-content space-around
+
+.ranking
+  width 100%
+  padding 15px
+  border-bottom 1px solid lighten(bgdark, 8%)
+  @media only screen and (min-width 600px)
+    flex 0 1 250px
+
+.rankingPerfTitle
+  font-size 1rem
+  font-weight 600
+  > .perfIcon
+    font-size 1.2rem
+    color gold
+    margin-right 10px
+    position relative
+    top 3px
+  > .toggleIcon
+    display inline-block
+    vertical-align middle
+    text-align center
+    width 24px
+    height 24px
+    margin-left 10px
+
+.rankingPlayer
+  padding 10px 0
+  display flex
+  justify-content space-between
+  &.active
+    background lighten(bgdark, 8%)
+  @media only screen and (min-width 600px)
+    font-size 0.9rem
+    border-bottom-style none
+    padding 5px 0
+
+.playerMiniPerf
+  > .rating, > .progress
+    padding 0 5px
+  > .rating:before
+    font-size 1.2em
+    vertical-align middle
+    margin-right 1px
+  > .progress
+    &.positive
+      color green
+      &:before
+        position relative
+        top 2px
+    &.negative
+      color red
+
+
+.view-container.light
+  #searchPlayersModal
+    > .modal_content
+      color textLightBg
+      background-color themeBgLight
+    .list_item
+      border-bottom-color borderLightGray
+      &.active
+        background-color darken(bglight, 5%)
+
+.view-container.transp
+  .ranking
+    border-bottom-color transpWhite01
+
+  #searchPlayersModal
+    background-color transpBlack08
+    > .modal_content
+      color textTransp
+      background-color transpBlack05
+    .list_item
+      border-bottom-color transpWhite01
+      &.active
+        background-color transpWhite02

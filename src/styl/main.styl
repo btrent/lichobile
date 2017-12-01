@@ -1,0 +1,247 @@
+.view-container
+  position absolute
+  display block
+  overflow hidden
+  width 100%
+  height 100%
+
+main
+  position absolute
+  height 100%
+  width 100%
+  background bgdark
+  color textDarkBg
+  overflow hidden
+
+.main_header
+  position relative
+  background headerBgDark
+  height headerHeight
+  color headerBgDarkColor
+  > nav
+    height 100%
+    overflow hidden
+    display flex
+    justify-content space-between
+    > .buttons
+      flex 0 0 auto
+      display flex
+      align-items center
+      > .main_header_button
+        padding-left 10px
+        padding-right 10px
+        > .chip
+          right 2px
+      > .game_menu_button
+        padding-right 15px
+        > .chip
+          right 5px
+
+.main_header-selector
+  width 100%
+  height 25px
+  line-height 25px
+  margin 0
+  padding 0
+  box-shadow none
+  background transparent
+  color darken(headerBgDarkColor, 5%)
+  > select
+    background transparent
+    height 100%
+    padding-left 20px
+    padding-right 0
+    font-size 1em
+    line-height 25px
+  > label
+    font-size 1.2em
+    &:after
+      content ''
+    > i
+      color gold
+
+.main_header_drop_shadow
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom -2px
+  height: 2px;
+  z-index: 1;
+  box-shadow inset 0px 2px 2px -1px rgba(0, 0, 0, 0.3)
+
+.main_header_title
+  display flex
+  flex-flow row nowrap
+  align-items center
+  padding-left 10px
+  font-size 1.1rem
+  line-height headerHeight
+  flex 1 1 auto
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+  &.withSub
+    display flex
+    flex-flow column nowrap
+    line-height initial
+    justify-content center
+    align-items flex-start
+    font-size 1rem
+  &.reconnecting
+    white-space nowrap
+    justify-content center
+    &.withTitle
+      justify-content flex-start
+      > span
+        margin-right 5px
+  @media only screen and (max-width 320px)
+    &.playing
+      padding-left 0
+      font-size 1rem
+
+.main_header_button
+  flex 0 0 auto
+  background transparent
+  padding 0 18px
+  margin 0
+  font-size 20px
+  line-height 20px
+  height headerHeight
+  &.fa-bell
+    position relative
+    top -2px
+  &.active
+    background headerBgDarkActive
+
+.header-subTitle
+  width 100%
+  font-size 0.8em
+  opacity 0.8
+  overflow hidden
+  text-overflow ellipsis
+
+.back_button
+  flex 0 1 auto
+  display flex
+  flex-flow row nowrap
+  height headerHeight
+  overflow hidden
+  white-space nowrap
+  text-overflow ellipsis
+  padding 0
+  > button
+    margin 0
+    height headerHeight
+    padding 0 16px
+    > .svg-icon-wrapper
+      width 24px
+      height 24px
+    &.active
+      background headerBgDarkActive
+  > .title, .main_header_title
+    &.withSub
+      font-size 1rem
+      display flex
+      flex-flow column nowrap
+      justify-content center
+      line-height initial
+    font-size 1.1rem
+    padding-right 10px
+    padding-left 2px
+    overflow hidden
+    text-overflow ellipsis
+    line-height headerHeight
+
+.chip
+  position absolute
+  font-size 9px
+  font-weight bold
+  line-height 13px
+  letter-spacing 0px
+  color headerBgDark
+  border 3px solid headerBgDark
+  border-radius 50%
+  height 19px
+  width 19px
+  top 5px
+  right 5px
+  background gold
+
+.main_header.board
+  .chip
+    color headerBgDark
+    border-color headerBgDark
+
+.friends_button
+  position relative
+  padding-right 10px
+
+.game_menu_button
+  position relative
+  &.invisible
+    visibility hidden
+  &::before
+    content ''
+    display block
+    width 20px
+    height 20px
+    background url('../../images/icons/game_icon.svg') no-repeat
+  &.brown::before
+    background url('../../images/icons/game_icon_brown.svg') no-repeat
+  &.blue::before
+    background url('../../images/icons/game_icon_blue.svg') no-repeat
+  &.green::before
+    background url('../../images/icons/game_icon_green.svg') no-repeat
+  &.grey::before
+    background url('../../images/icons/game_icon_grey.svg') no-repeat
+  &.purple::before
+    background url('../../images/icons/game_icon_purple.svg') no-repeat
+  &.wood::before
+    background url('../../images/icons/game_icon_wood.svg') no-repeat
+  &.wood2::before
+    background url('../../images/icons/game_icon_wood2.svg') no-repeat
+  &.wood3::before
+    background url('../../images/icons/game_icon_wood3.svg') no-repeat
+  &.maple::before
+    background url('../../images/icons/game_icon_maple.svg') no-repeat
+  &.blue3::before
+    background url('../../images/icons/game_icon_blue3.svg') no-repeat
+  &.canvas::before
+    background url('../../images/icons/game_icon_canvas.svg') no-repeat
+  &.metal::before
+    background url('../../images/icons/game_icon_metal.svg') no-repeat
+  > .nb_challenges
+    left 7px
+    background orange
+  &.new_challenge:before
+    background transparent
+    font-family: "lichess" !important;
+    content: "U";
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    text-transform: none !important;
+    speak: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    animation: neon 1.5s ease-in-out infinite alternate
+
+@media only screen and (min-width 600px)
+  .friends_button
+    padding-right 15px
+    margin-right 5px
+    + .game_menu_button
+      padding-left 15px
+      padding-right 15px
+
+.content
+  width 100%
+  height "calc(100% - %s)" % headerHeight
+  &.withFooter
+    height "calc(100% - %s - %s)" % (headerHeight footerHeight)
+  &.fullScreen
+    height 100%
+
+
+.main_footer
+  height footerHeight

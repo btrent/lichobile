@@ -1,16 +1,25 @@
 npm-debug.log
 
-bin/*.mobileprovision
-bin/*.keystore
+/app.js.map
+/*.mobileprovision
+/*.keystore
+/build.json
+/scripts/deploy-stage.sh
 
-/app
+/platforms
+/plugins
 
-project/www/app.js
-project/www/index.html
-project/www/css/compiled
-project/node_modules
-project/env.json
+/www/app.js
+/www/index.html
+/www/css/compiled
+/www/locale
 
-private.json
+/node_modules
+/env.json
+/env-*.json
 
 .DS_Store
+.tags
+.tags1
+
+/ul_web_hooks

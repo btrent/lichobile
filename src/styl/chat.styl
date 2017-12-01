@@ -1,0 +1,102 @@
+#chat
+  color #353535
+
+.chat_content
+  display flex
+  flex-flow column nowrap
+
+.chat_messages
+  position relative
+  padding 10px
+
+.chat_msg
+  font-weight normal
+  padding 15px
+  background #fff
+  margin-top 20px
+  border-top-left-radius: 8px
+  border-top-right-radius: 8px
+  line-height 1.2em
+  color textDarkGray
+  width 90%
+  word-wrap break-word
+  &:before
+    content ''
+    display block
+    position absolute
+    left 5px
+    height 10px
+    width 10px
+    transform: rotate(45deg);
+    background #fff
+  &:first-child
+    margin-top 0
+  &:last-child
+    border-bottom-left-radius: 8px
+    border-bottom-right-radius: 8px
+  &.close_balloon
+    border-bottom-left-radius: 8px
+    border-bottom-right-radius: 8px
+  &.player
+    background #d8d8d8
+    margin-left 10%
+    & + .chat_msg.player
+      margin-top -10px
+      padding-top 0
+      border-top-left-radius: 0
+      border-top-right-radius: 0
+      &:before
+        display none
+    &:before
+      background #d8d8d8
+      left auto
+      right 5px
+  &.opponent
+    & + .chat_msg.opponent
+      margin-top -10px
+      padding-top 0
+      border-top-left-radius: 0
+      border-top-right-radius: 0
+      &:before
+        display none
+  &.system
+    background transparent
+    border 0
+    border-radius 0
+    width 100%
+    text-align right
+    font-style italic
+    font-size 0.8em
+    &:before
+      display none
+    & + .chat_msg.system
+      margin-top -10px
+      padding-top 0
+
+.chat_scroller
+  flex 1 1 auto
+
+.chat_form
+  flex 0 1 auto
+  display flex
+  flex-flow row nowrap
+  min-height 50px
+  background-color #fff
+
+.chat_input
+  flex 1 1 auto
+  padding 0
+  border none
+  outline none
+  color textLightBg
+
+.chat_send
+  flex 0 0 50px
+  padding 0
+  font-size 30px
+  background transparent
+  color #C3A86F
+  overflow hidden
+  &:before
+    display block
+    transform rotate(50deg)

@@ -1,0 +1,175 @@
+.training-tableWrapper
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  min-width: 0;
+
+.training-table
+  height initial
+  flex 1 1 auto
+  display flex
+  flex-flow column nowrap
+  font-size 0.9em
+
+.training-explanation
+  padding 5px
+  flex 1 1 auto
+  display flex
+  flex-flow column nowrap
+  justify-content center
+  align-items center
+  > .player
+    display flex
+    justify-content center
+    align-items center
+    > .piece-no-square
+      width: 40px
+      height: 40px
+  > .buttonPlaceholder
+    height 30px
+    margin 5px auto
+    padding 0.5em
+  > .fatButton
+    height 30px
+    opacity 0.8
+    width initial
+    margin 5px auto
+    font-size 0.8em
+    padding 0.5em
+
+.training-control
+  align-self stretch
+  width 50%
+  color: #fff;
+  display flex
+  justify-content center
+  align-items center
+  padding 0 1em
+  text-transform uppercase
+  > .fa
+    font-size 30px
+  &.continue
+    background: rgba(56,147,232,0.8);
+
+.training-instruction
+  display flex
+  flex-flow column nowrap
+  > strong
+    font-size 1.1em
+
+.training-icon
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  font-size: 50px;
+  font-size: 40px;
+  line-height: 40px;
+  text-align: center;
+  &.fail, &.loss
+    color red
+  &.great, &.win
+    color green
+
+.puzzleRatingDiff
+  margin-left 10px
+  font-size 1.5em
+
+.training-half
+  width 100%
+  flex 1 1 50%
+  display flex
+  justify-content center
+  align-items center
+  &:first-child
+    padding 5px 0
+
+.trainingPlayer
+  .player
+    position relative
+
+.trainingMenu
+  h2:before
+    font-size 1.3em
+    position relative
+    top 2px
+    margin-right 10px
+  canvas
+    margin-bottom 10px
+    padding-right 10px
+
+.trainingMenuContent
+  padding 10px
+
+.trainingRatingHeader
+  padding 10px
+  margin-bottom 10px
+
+.trainingUserInfos.landscape
+  flex 0 0 auto
+  height 250px
+  padding 1rem 2rem
+  overflow hidden
+  @media only screen and (orientation: landscape) and (max-height 450px)
+    height 100px
+    padding 5px 0
+  @media only screen and (orientation: landscape) and (min-height 450px)
+    height 150px
+    padding 5px 0
+  @media only screen and (orientation: landscape) and (min-height 550px)
+    height 200px
+  @media only screen and (orientation: landscape) and (min-height 700px)
+    height 300px
+  @media only screen and (orientation: landscape) and (min-height 800px)
+    height 400px
+  .puzzleDifficulty
+    margin-top 0
+
+
+#training-graph
+  .path
+    fill rgba(blue, 0.5)
+  .line
+    stroke blue
+  .legend
+    fill blue
+
+.puzzle-recents
+  display flex
+  flex-flow row wrap
+  align-items center
+  justify-content flex-start
+  margin 10px
+  > button
+    padding 0
+    min-height initial
+    margin 0 3px 3px 0
+    width 30px
+    height 30px
+    color #fff
+    text-align center
+    line-height 30px
+    font-size 0.8em
+    &:last-child
+      border-radius 0
+    &.up
+      background green
+    &.down
+      background red
+
+
+.view-container.light
+  .training-control
+    &.retry
+      color textLightBg
+
+
+.view-container.transp
+  .training-control
+    &.continue
+      background-color transpWhite03
+
+  .training-explanation
+    > .fatButton
+      opacity 0.6
+      box-shadow none
