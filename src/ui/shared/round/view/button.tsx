@@ -136,19 +136,8 @@ export default {
     return null
   },
   answerOpponentDrawOffer: function(ctrl: OnlineRound) {
-    if (ctrl.data.opponent.offeringDraw) return h('div.negotiation.clearfix', {
-      key: 'answerDrawOfferZone'
-    }, [
-      h('div.notice', i18n('yourOpponentOffersADraw')),
-      h('div.binary_choice_wrapper', [
-        h('button.binary_choice[data-icon=E]', {
-          oncreate: helper.ontap(() => { socket.send('draw-yes') })
-        }, i18n('accept')),
-        h('button.binary_choice[data-icon=L]', {
-          oncreate: helper.ontap(() => { socket.send('draw-no') })
-        }, i18n('decline'))
-      ])
-    ])
+    if (ctrl.data.player.offeringDraw)
+	return null
     return null
   },
   cancelTakebackProposition: function(ctrl: OnlineRound) {

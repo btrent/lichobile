@@ -87,9 +87,6 @@ function main() {
       window.StatusBar.backgroundColorByHexString('#151A1E')
   }
 
-  setTimeout(() => {
-    window.navigator.splashscreen.hide()
-  }, 500)
 }
 
 function onResize() {

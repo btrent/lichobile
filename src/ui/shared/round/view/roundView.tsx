@@ -293,7 +293,7 @@ function renderPlayTable(ctrl: OnlineRound, player: Player, material: Material, 
             ctrl.correspondenceClock, player.color, ctrl.data.game.player
           ) : null
       }
-      { playable && (myTurn && position === 'player' || !myTurn && position === 'opponent') ?
+      { playable && (!myTurn && position === 'opponent') ?
         renderExpiration(ctrl, position, myTurn) : null
       }
       {renderAntagonistInfo(ctrl, player, material, position, isPortrait, isCrazy)}
